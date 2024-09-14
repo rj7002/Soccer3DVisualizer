@@ -281,11 +281,16 @@ activities = ['Pass', 'Ball Receipt', 'Carry', 'Pressure', 'Shot']
 
 
 # Drop-down menus 'Select Team, Player and Activity'
-menu_team = st.sidebar.selectbox('Select Team', (team_1, team_2))
-if menu_team == team_1:
-    menu_player = st.sidebar.selectbox('Select Player', player_names_1)
+allteams = st.checkbox('All Teams')
+if allteams:
+    df = df
 else:
-    menu_player = st.sidebar.selectbox('Select Player', player_names_2)
+    menu_team = st.sidebar.selectbox('Select Team', (team_1, team_2))
+    if menu_team == team_1:
+        menu_player = st.sidebar.multiselect('Select Players', player_names_1)
+    else:
+        menu_player = st.sidebar.multiselect('Select Players', player_names_2)
+    df = df[df['player_name'].isin(menu_player)]]
 
 def create_pitch_3d():
     # Create figure
@@ -425,7 +430,7 @@ fig = create_pitch_3d()
 
 def pass_map_3d(fig):
     # Filter the dataframe for passes by the selected player
-    df_pass = df.loc[(df['player_name'] == menu_player) & (df['type_name'] == 'Pass')]
+    df_pass = df.loc[(df['type_name'] == 'Pass')]
     df_high = df_pass[df_pass['pass_height_name'] == 'High Pass']
     df_pass = df_pass[df_pass['pass_height_name'] == 'Ground Pass']
 
@@ -576,7 +581,7 @@ def pass_map_3d(fig):
         ))
 def ball_receipt_map_3d(fig):
     # Filter the dataframe for ball receipts by the selected player
-    df_ball_rec = df.loc[(df['player_name'] == menu_player) & (df['type_name'] == 'Ball Receipt*')]
+    df_ball_rec = df.loc[(df['type_name'] == 'Ball Receipt*')]
     location = df_ball_rec['location'].tolist()
     periods = df_ball_rec['period'].tolist()
     minutes = df_ball_rec['minute'].tolist()
@@ -608,7 +613,7 @@ def ball_receipt_map_3d(fig):
 
 def carry_map_3d(fig):
     # Filter the dataframe for carries by the selected player
-    df_carry = df.loc[(df['player_name'] == menu_player) & (df['type_name'] == 'Carry')]
+    df_carry = df.loc[(df['type_name'] == 'Carry')]
     location = df_carry['location'].tolist()
     carry_end_location = df_carry['carry_end_location'].tolist()
     periods = df_carry['period'].tolist()
@@ -661,7 +666,7 @@ def carry_map_3d(fig):
 
 def pressure_map_3d(fig):
     # Filter the dataframe for pressure by the selected player
-    df_pressure = df.loc[(df['player_name'] == menu_player) & (df['type_name'] == 'Pressure')]
+    df_pressure = df.loc[(df['type_name'] == 'Pressure')]
     location = df_pressure['location'].tolist()
     periods = df_pressure['period'].tolist()
     minutes = df_pressure['minute'].tolist()
@@ -693,7 +698,7 @@ def pressure_map_3d(fig):
 
 def shot_map_3d(fig):
     # Filter the dataframe for shots by the selected player
-    df_shot = df.loc[(df['player_name'] == menu_player) & (df['type_name'] == 'Shot')]
+    df_shot = df.loc[(df['type_name'] == 'Shot')]
     location = df_shot['location'].tolist()
     shotend = df_shot['shot_end_location'].tolist()
     outcome = df_shot['shot_outcome_name'].tolist()
