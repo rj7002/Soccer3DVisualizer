@@ -281,16 +281,14 @@ activities = ['Pass', 'Ball Receipt', 'Carry', 'Pressure', 'Shot']
 
 
 # Drop-down menus 'Select Team, Player and Activity'
-allteams = st.checkbox('All Teams')
-if allteams:
-    df = df
+
+
+menu_team = st.sidebar.selectbox('Select Team', (team_1, team_2))
+if menu_team == team_1:
+    menu_player = st.sidebar.multiselect('Select Players', player_names_1)
 else:
-    menu_team = st.sidebar.selectbox('Select Team', (team_1, team_2))
-    if menu_team == team_1:
-        menu_player = st.sidebar.multiselect('Select Players', player_names_1)
-    else:
-        menu_player = st.sidebar.multiselect('Select Players', player_names_2)
-    df = df[df['player_name'].isin(menu_player)]
+    menu_player = st.sidebar.multiselect('Select Players', player_names_2)
+df = df[df['player_name'].isin(menu_player)]
 
 def create_pitch_3d():
     # Create figure
