@@ -8,12 +8,11 @@ import json
 import streamlit as st
 import unicodedata
 from matplotlib import pyplot as plt
-from FCPython import createPitch
 import requests
 from random import randint
 # Create pitch plot
 import math
-st.set_page_config(page_title="Soccer 3D Visualizer",page_icon='⚽',layout='wide')
+st.set_page_config(page_title="3D Soccer Visualizer",page_icon='⚽',layout='wide')
 st.markdown("""
     <style>
     .big-font {
@@ -21,7 +20,7 @@ st.markdown("""
         text-align: center;
     }
     </style>
-    <p class="big-font">Soccer 3D Visualizer</p>
+    <p class="big-font">3D Soccer Visualizer</p>
     """, unsafe_allow_html=True)
 
 st.sidebar.write('View multiple 3D maps such as shot maps, passing maps, receiving maps, pressure maps. Data from Statsbomb API. Inspired by the work of Andrii Gozhulovskyi')
