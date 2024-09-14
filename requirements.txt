@@ -1,0 +1,10 @@
+statsbombpy
+pandas
+streamlit 
+plotly
+numpy
+requests
+random
+matplotlib
+FCPython
+math
