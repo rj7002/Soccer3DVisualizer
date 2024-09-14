@@ -22,7 +22,7 @@ st.markdown("""
     <p class="big-font">3D Soccer Visualizer</p>
     """, unsafe_allow_html=True)
 
-st.sidebar.write('View multiple 3D maps such as shot maps, passing maps, receiving maps, pressure maps. Data from Statsbomb API. Inspired by the work of Andrii Gozhulovskyi')
+st.sidebar.write('View multiple 3D maps such as  maps, passing maps, receiving maps, pressure maps. Data from Statsbomb API. Inspired by the work of Andrii Gozhulovskyi')
 def draw_goals(fig,loc):
     if loc == 'home':
         x1 = 0
@@ -697,6 +697,7 @@ def pressure_map_3d(fig):
 def shot_map_3d(fig):
     # Filter the dataframe for shots by the selected player
     df_shot = df.loc[(df['type_name'] == 'Shot')]
+    st.write(df_shot)
     location = df_shot['location'].tolist()
     shotend = df_shot['shot_end_location'].tolist()
     outcome = df_shot['shot_outcome_name'].tolist()
