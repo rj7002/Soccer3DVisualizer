@@ -5,6 +5,5 @@ plotly
 numpy
 requests
 matplotlib
-FCPython
 math
 random
