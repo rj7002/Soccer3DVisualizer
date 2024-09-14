@@ -289,7 +289,7 @@ if menu_team == team_1:
 else:
     menu_player = st.sidebar.multiselect('Select Players', player_names_2)
 df = df[df['player_name'].isin(menu_player)]
-hide = st.checkbox('Hide Goal Posts')
+hide = st.sidebar.checkbox('Hide Goal Posts')
 
 def create_pitch_3d():
     # Create figure
