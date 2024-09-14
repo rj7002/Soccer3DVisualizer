@@ -443,10 +443,7 @@ def pass_map_3d(fig):
     minutes = df_pass['minute'].tolist()
     seconds = df_pass['second'].tolist()
     teams = df_pass['team_name'].tolist()
-    # Determine the color based on the team
-    if allteams != 1:
-        color = 'blue' if menu_team == team_1 else 'red'
-    
+    # Determine the color based on the team    
     
     # Extract x and y coordinates
     x1 = np.array([el[0] for el in location])
@@ -487,6 +484,8 @@ def pass_map_3d(fig):
                 color = 'blue'
             else:
                 color = 'red'
+        else:
+            color = 'blue' if menu_team == team_1 else 'red'
         player = passer[i]
         reciever = recepient[i]
         passheight = passheightname[i].lower()
