@@ -5,5 +5,4 @@ plotly
 numpy
 requests
 matplotlib
-math
 random
