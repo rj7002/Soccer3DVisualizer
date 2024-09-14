@@ -380,8 +380,9 @@ def create_pitch_3d():
 
 
         # Example arcs (you can uncomment and adjust as needed)
-        # add_arc2(11 * scale_factor, (pitch_width / 2)+5, 0, 18.3 / 2 * scale_factor, 310, 50, 'Left Arc')
-        # add_arc((120 - 11) * scale_factor, (pitch_width / 2)+5, 0, 18.3 / 2 * scale_factor, 120, 230, 'Right Arc')
+    add_arc2(11 * scale_factor, (pitch_width / 2), 0, 18.3 / 2 * scale_factor, 234, 126, 'Left Arc')
+    add_arc((120 - 11) * scale_factor, (pitch_width / 2), 0, 18.3 / 2 * scale_factor, 128, 232, 'Right Arc')
+
         
         # Set axis
     fig.update_layout(scene=dict(
