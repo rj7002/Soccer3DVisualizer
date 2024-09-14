@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 import json
 import streamlit as st
-import unicodedata
 from matplotlib import pyplot as plt
 import requests
 from random import randint
@@ -221,9 +220,9 @@ def generate_arc_points(p1, p2, apex, num_points=100):
     y = (1 - t)**2 * p1[1] + 2 * (1 - t) * t * apex[1] + t**2 * p2[1]
     z = (1 - t)**2 * p1[2] + 2 * (1 - t) * t * apex[2] + t**2 * p2[2]
     return x, y, z
-pitch_width = 120
-pitch_height = 80
-fig, ax = createPitch(pitch_width, pitch_height, 'yards', 'gray')
+# pitch_width = 120
+# pitch_height = 80
+# fig, ax = createPitch(pitch_width, pitch_height, 'yards', 'gray')
 comps = sb.competitions()
 compets = []
 for index, row in comps.iterrows():
