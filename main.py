@@ -444,7 +444,8 @@ def pass_map_3d(fig):
     seconds = df_pass['second'].tolist()
     teams = df_pass['team_name'].tolist()
     # Determine the color based on the team
-    color = 'blue' if menu_team == team_1 else 'red'
+    if allteams != 1:
+        color = 'blue' if menu_team == team_1 else 'red'
     
     
     # Extract x and y coordinates
