@@ -431,7 +431,7 @@ def pass_map_3d(fig):
     df_pass = df.loc[(df['type_name'] == 'Pass')]
     df_high = df_pass[df_pass['pass_height_name'] == 'High Pass']
     df_pass = df_pass[df_pass['pass_height_name'] == 'Ground Pass']
-
+    st.write(df_pass)
     location = df_pass['location'].tolist()
     pass_end_location = df_pass['pass_end_location'].tolist()
     passer = df_pass['player_name'].tolist()
