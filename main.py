@@ -697,7 +697,7 @@ def pressure_map_3d(fig):
 def shot_map_3d(fig):
     # Filter the dataframe for shots by the selected player
     df_shot = df.loc[(df['type_name'] == 'Shot')]
-    st.write(df_shot)
+    # st.write(df_shot)
     location = df_shot['location'].tolist()
     shotend = df_shot['shot_end_location'].tolist()
     outcome = df_shot['shot_outcome_name'].tolist()
