@@ -361,13 +361,13 @@ def create_pitch_3d():
         x = x_center + radius * np.cos(theta)  # Flip around the Y-axis
         y = y_center + radius * np.sin(theta)
         z = z_center * np.ones_like(x)
-        fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='lines', name=name, line=dict(color='white', width=4 * scale_factor)))
+        fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='lines', name=name, line=dict(color='white', width=4 * scale_factor),hoverinfo='none'))
     def add_arc2(x_center, y_center, z_center, radius, theta1, theta2, name):
         theta = np.linspace(np.deg2rad(theta1), np.deg2rad(theta2), 100)
         x = x_center - radius * np.cos(theta)  # Flip around the Y-axis
         y = y_center + radius * np.sin(theta)
         z = z_center * np.ones_like(x)
-        fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='lines', name=name, line=dict(color='white', width=4 * scale_factor)))
+        fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='lines', name=name, line=dict(color='white', width=4 * scale_factor),hoverinfo='none'))
     if hide != 1:
         draw_goals(fig,'home')
         draw_goals(fig,'away')
