@@ -749,54 +749,104 @@ def shot_map_3d(fig):
     # Plot each shot
     for i in range(len(x1)):
         shotoutcome = outcome[i]
-        if z2[i] > 0:  # Only create curves for shots where z2 is greater than 0
-            x_curve, y_curve, z_curve = generate_smooth_curve(x1[i], x2[i], y1[i], y2[i], z2[i])
-            
-            fig.add_trace(go.Scatter3d(
-                x=x_curve,
-                y=y_curve,
-                z=z_curve,
-                mode='lines',
-                line=dict(color=color, width=5),  # Change color if needed
-                name='Shot Trajectory',
-                hoverinfo='text',
-                hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
-            ))
+        if menu_team == team_2:
+            if z2[i] > 0:  # Only create curves for shots where z2 is greater than 0
+                x_curve, y_curve, z_curve = generate_smooth_curve(x1[i], x2[i], 80-y1[i], 80-y2[i], z2[i])
+                
+                fig.add_trace(go.Scatter3d(
+                    x=x_curve,
+                    y=y_curve,
+                    z=z_curve,
+                    mode='lines',
+                    line=dict(color=color, width=5),  # Change color if needed
+                    name='Shot Trajectory',
+                    hoverinfo='text',
+                    hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
+                ))
 
-            # Plot the start and end points as markers
-            fig.add_trace(go.Scatter3d(
-                x=[x2[i], x2[i]],
-                y=[y2[i], y2[i]],
-                z=[z2[i], z2[i]],
-                mode='markers',
-                marker=dict(size=5, symbol='circle', color=color),  # Change color if needed
-                name='Shot Points',
-                hoverinfo='text',
-                hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
-            ))
-        else:
-            fig.add_trace(go.Scatter3d(
-            x=[x1[i], x2[i]],
-            y=[y1[i], y2[i]],
-            z=[0, z2[i]],  # Assuming shots occur at the same z-coordinate
-            mode='lines',
-            line=dict(color=color, width=5),
-            marker=dict(size=5, symbol='circle', color=color),
-            name='Shots',
-            hoverinfo='text',
-            hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
-        ))
-            fig.add_trace(go.Scatter3d(
-                x=[x2[i]],
-                y=[y2[i]],
-                z=[z2[i], z2[i]],  # Assuming shots occur at the same z-coordinate
-                mode='markers',
-                # line=dict(color=color, width=3),
+                # Plot the start and end points as markers
+                fig.add_trace(go.Scatter3d(
+                    x=[x2[i], x2[i]],
+                    y=[80-y2[i], 80-y2[i]],
+                    z=[z2[i], z2[i]],
+                    mode='markers',
+                    marker=dict(size=5, symbol='circle', color=color),  # Change color if needed
+                    name='Shot Points',
+                    hoverinfo='text',
+                    hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
+                ))
+            else:
+                fig.add_trace(go.Scatter3d(
+                x=[x1[i], x2[i]],
+                y=[80-y1[i], 80-y2[i]],
+                z=[0, z2[i]],  # Assuming shots occur at the same z-coordinate
+                mode='lines',
+                line=dict(color=color, width=5),
                 marker=dict(size=5, symbol='circle', color=color),
                 name='Shots',
                 hoverinfo='text',
                 hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
             ))
+                fig.add_trace(go.Scatter3d(
+                    x=[x2[i]],
+                    y=[80-y2[i]],
+                    z=[z2[i], z2[i]],  # Assuming shots occur at the same z-coordinate
+                    mode='markers',
+                    # line=dict(color=color, width=3),
+                    marker=dict(size=5, symbol='circle', color=color),
+                    name='Shots',
+                    hoverinfo='text',
+                    hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
+                ))
+        else:
+            if z2[i] > 0:  # Only create curves for shots where z2 is greater than 0
+                x_curve, y_curve, z_curve = generate_smooth_curve(x1[i], x2[i], y1[i], y2[i], z2[i])
+                
+                fig.add_trace(go.Scatter3d(
+                    x=x_curve,
+                    y=y_curve,
+                    z=z_curve,
+                    mode='lines',
+                    line=dict(color=color, width=5),  # Change color if needed
+                    name='Shot Trajectory',
+                    hoverinfo='text',
+                    hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
+                ))
+
+                # Plot the start and end points as markers
+                fig.add_trace(go.Scatter3d(
+                    x=[x2[i], x2[i]],
+                    y=[y2[i], y2[i]],
+                    z=[z2[i], z2[i]],
+                    mode='markers',
+                    marker=dict(size=5, symbol='circle', color=color),  # Change color if needed
+                    name='Shot Points',
+                    hoverinfo='text',
+                    hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
+                ))
+            else:
+                fig.add_trace(go.Scatter3d(
+                x=[x1[i], x2[i]],
+                y=[y1[i], y2[i]],
+                z=[0, z2[i]],  # Assuming shots occur at the same z-coordinate
+                mode='lines',
+                line=dict(color=color, width=5),
+                marker=dict(size=5, symbol='circle', color=color),
+                name='Shots',
+                hoverinfo='text',
+                hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
+            ))
+                fig.add_trace(go.Scatter3d(
+                    x=[x2[i]],
+                    y=[y2[i]],
+                    z=[z2[i], z2[i]],  # Assuming shots occur at the same z-coordinate
+                    mode='markers',
+                    # line=dict(color=color, width=3),
+                    marker=dict(size=5, symbol='circle', color=color),
+                    name='Shots',
+                    hoverinfo='text',
+                    hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
+                ))
 typeplot = st.sidebar.selectbox('Select a plot',['Pass Map','Receipt Map','Pressure Map','Carry Map','Shot Map'])
 if typeplot == 'Pass Map':
     pass_map_3d(fig)
