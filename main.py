@@ -415,11 +415,11 @@ def create_pitch_3d():
         aspectmode='data',
         aspectratio=dict(x=2, y=1.4, z=0.2),  # Adjust aspect ratio if needed
     ), showlegend=False,
-     margin=dict(l=0, r=0, t=0, b=100),
+     margin=dict(l=0, r=0, t=0, b=0),
                 scene_aspectmode="data",
                 height=1000,
                 scene_camera=dict(
-                    eye=dict(x=0, y=4, z=5)
+                    eye=dict(x=0, y=2.5, z=5.3)
                 ),)
     
     return fig
@@ -942,4 +942,4 @@ fig.add_trace(go.Scatter3d(
      , hoverinfo='none' # Customize font size and color
 ))
 st.subheader(f'{menu_player} {typeplot} - {game2} - {comp} {stage} ')
-st.plotly_chart(fig)
+st.plotly_chart(fig,use_container_width=True)
