@@ -743,7 +743,7 @@ def shot_map_3d(fig):
         t = np.linspace(0, 1, num=100)  # Parameter t from 0 to 1
         x_curve = (1 - t) * x_start + t * x_end
         y_curve = (1 - t) * y_start + t * y_end
-        z_curve = z_end * t ** 2  # Parabolic curve rising to z_end
+        z_curve = z_end * t * (2 - t) # Parabolic curve concave down starting at z = 0
         return x_curve, y_curve, z_curve
 
     # Plot each shot
