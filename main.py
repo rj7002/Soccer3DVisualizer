@@ -862,6 +862,38 @@ def shot_map_3d(fig):
 typeplot = st.sidebar.selectbox('Select a plot',['Pass Map','Receipt Map','Pressure Map','Carry Map','Shot Map'])
 if typeplot == 'Pass Map':
     pass_map_3d(fig)
+    df_pass = df.loc[(df['player_name'] == menu_player) & (df['type_name'] == 'Pass')]
+
+    frequency = df_pass['pass_recipient_name'].value_counts().reset_index()
+    frequency.columns = ['pass_recipient_name', 'frequency']
+
+    # Step 2: Plot the results using Plotly
+    fig2 = px.pie(frequency, names='pass_recipient_name', values='frequency',
+              title='Distribution of Passes to Each Recipient',
+              labels={'pass_recipient_name': 'Recipient', 'frequency': 'Frequency'},
+              color='frequency',  # Optional: Add color to slices based on frequency
+                # Optional: Customize color scale
+             )
+  # Step 1: Create bins for 'pass_length'
+    # Define your bin edges and labels
+    bins = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 100]
+    labels = ['0-5', '5-10', '10-15', '15-20', '20-25', '25-30', '30-35', '35-40', '40-45', '45-50', '50-55', '55-60', '60-65', '65-70', '70-75', '75-80', '80-85', '85-90', '90-100']
+
+    # Create bins for 'pass_length'
+    df_pass['pass_length_bin'] = pd.cut(df_pass['pass_length'], bins=bins, labels=labels, right=True)
+
+    # Aggregate the frequency of each bin
+    frequency2 = df_pass['pass_length_bin'].value_counts().reset_index()
+    frequency2.columns = ['pass_length_bin', 'frequency']
+    frequency2 = frequency2.sort_values(by='pass_length_bin')  # Ensure bins are sorted correctly
+
+    # Plot the results using Plotly
+    fig3 = px.bar(frequency2, x='pass_length_bin', y='frequency',
+                title='Frequency of Pass Lengths',
+                labels={'pass_length_bin': 'Pass Length (Yards)', 'frequency': 'Frequency'},
+                color='frequency',  # Optional: Add color to bars based on frequency
+                color_continuous_scale='Blues'  # Optional: Customize color scale
+                )
 elif typeplot == 'Receipt Map':
     ball_receipt_map_3d(fig)
 elif typeplot == 'Carry Map':
@@ -870,6 +902,28 @@ elif typeplot == 'Pressure Map':
     pressure_map_3d(fig)
 else:
     shot_map_3d(fig)
+    df_shot = df.loc[(df['player_name'] == menu_player) & (df['type_name'] == 'Shot')]
+
+    frequency = df_shot['shot_outcome_name'].value_counts().reset_index()
+    frequency.columns = ['shot_outcome_name', 'frequency']
+
+    # Step 2: Plot the results using Plotly
+    fig2 = px.pie(frequency, names='shot_outcome_name', values='frequency',
+              title='Shot Outcomes',
+              labels={'shot_outcome_name': 'Shot Outcome', 'frequency': 'Frequency'},
+              color='frequency',  # Optional: Add color to slices based on frequency
+                # Optional: Customize color scale
+             )
+    frequency2 = df_shot['play_pattern_name'].value_counts().reset_index()
+    frequency2.columns = ['play_pattern_name', 'frequency']
+
+    # Plot the results using Plotly as a bar chart
+    fig3 = px.bar(frequency2, x='play_pattern_name', y='frequency',
+                title='Frequency of Play Patterns',
+                labels={'play_pattern_name': 'Play Pattern', 'frequency': 'Frequency'},
+                color='frequency',  # Optional: Add color to bars based on frequency
+                color_continuous_scale='Blues'  # Optional: Customize color scale
+                )
 # from random import randint
 # # df2 = df[df['type_name'] == 'Pass']
 # # df2 = df2[df2['pass_height_name'] == 'High Pass']
@@ -949,3 +1003,9 @@ fig.add_trace(go.Scatter3d(
 ))
 st.subheader(f'{menu_player} {typeplot} - {game2} - {comp} {stage} ')
 st.plotly_chart(fig,use_container_width=True)
+if typeplot == 'Pass Map' or typeplot == 'Shot Map':
+    col1,col2 = st.columns(2)
+    with col1:
+        st.plotly_chart(fig2)
+    with col2:
+        st.plotly_chart(fig3)
