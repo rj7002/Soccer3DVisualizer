@@ -717,6 +717,8 @@ def shot_map_3d(fig):
     minutes = df_shot['minute'].tolist()
     seconds = df_shot['second'].tolist()
     players = df_shot['player_name'].tolist()
+    shottypes = df_shot['shot_type_name'].tolist()
+
 
     # Determine the color based on the team
     color = 'blue' if menu_team == team_1 else 'red'
@@ -771,7 +773,7 @@ def shot_map_3d(fig):
                     line=dict(color=color, width=5),  # Change color if needed
                     name='Shot Trajectory',
                     hoverinfo='text',
-                    hovertext=f'{players[i]}<br>{shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                    hovertext=f'{players[i]}<br>{shottypes[i]} {shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
                 ))
 
                 # Plot the start and end points as markers
@@ -783,7 +785,7 @@ def shot_map_3d(fig):
                     marker=dict(size=5, symbol='circle', color=color),  # Change color if needed
                     name='Shot Points',
                     hoverinfo='text',
-                    hovertext=f'{players[i]}<br>{shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                    hovertext=f'{players[i]}<br>{shottypes[i]} {shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
                 ))
             else:
                 fig.add_trace(go.Scatter3d(
@@ -795,7 +797,7 @@ def shot_map_3d(fig):
                 marker=dict(size=5, symbol='circle', color=color),
                 name='Shots',
                 hoverinfo='text',
-                hovertext=f'{players[i]}<br>{shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                hovertext=f'{players[i]}<br>{shottypes[i]} {shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
             ))
                 fig.add_trace(go.Scatter3d(
                     x=[x2[i]],
@@ -806,7 +808,7 @@ def shot_map_3d(fig):
                     marker=dict(size=5, symbol='circle', color=color),
                     name='Shots',
                     hoverinfo='text',
-                    hovertext=f'{players[i]}<br>{shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                    hovertext=f'{players[i]}<br>{shottypes[i]} {shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
                 ))
         else:
             if z2[i] > 0:  # Only create curves for shots where z2 is greater than 0
@@ -820,7 +822,7 @@ def shot_map_3d(fig):
                     line=dict(color=color, width=5),  # Change color if needed
                     name='Shot Trajectory',
                     hoverinfo='text',
-                    hovertext=f'{players[i]}<br>{shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                    hovertext=f'{players[i]}<br>{shottypes[i]} {shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
                 ))
 
                 # Plot the start and end points as markers
@@ -832,7 +834,7 @@ def shot_map_3d(fig):
                     marker=dict(size=5, symbol='circle', color=color),  # Change color if needed
                     name='Shot Points',
                     hoverinfo='text',
-                    hovertext=f'{players[i]}<br>{shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                    hovertext=f'{players[i]}<br>{shottypes[i]} {shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
                 ))
             else:
                 fig.add_trace(go.Scatter3d(
@@ -844,7 +846,7 @@ def shot_map_3d(fig):
                 marker=dict(size=5, symbol='circle', color=color),
                 name='Shots',
                 hoverinfo='text',
-                hovertext=f'{players[i]}<br>{shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                hovertext=f'{players[i]}<br>{shottypes[i]} {shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
             ))
                 fig.add_trace(go.Scatter3d(
                     x=[x2[i]],
@@ -855,7 +857,7 @@ def shot_map_3d(fig):
                     marker=dict(size=5, symbol='circle', color=color),
                     name='Shots',
                     hoverinfo='text',
-                    hovertext=f'{players[i]}<br>{shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                    hovertext=f'{players[i]}<br>{shottypes[i]} {shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
                 ))
 typeplot = st.sidebar.selectbox('Select a plot',['Pass Map','Receipt Map','Pressure Map','Carry Map','Shot Map'])
 if typeplot == 'Pass Map':
