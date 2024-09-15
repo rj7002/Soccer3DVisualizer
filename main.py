@@ -11,6 +11,8 @@ import requests
 from random import randint
 # Create pitch plot
 import math
+import plotly.express as px
+
 st.set_page_config(page_title="3D Soccer Visualizer",page_icon='⚽',layout='wide')
 st.markdown("""
     <style>
