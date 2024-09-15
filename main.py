@@ -767,7 +767,7 @@ def shot_map_3d(fig):
             fig.add_trace(go.Scatter3d(
                 x=[x2[i], x2[i]],
                 y=[y2[i], y2[i]],
-                z=[0, z2[i]],
+                z=[z2[i], z2[i]],
                 mode='markers',
                 marker=dict(size=5, symbol='circle', color=color),  # Change color if needed
                 name='Shot Points',
