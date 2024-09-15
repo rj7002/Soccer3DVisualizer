@@ -862,7 +862,7 @@ def shot_map_3d(fig):
 typeplot = st.sidebar.selectbox('Select a plot',['Pass Map','Receipt Map','Pressure Map','Carry Map','Shot Map'])
 if typeplot == 'Pass Map':
     pass_map_3d(fig)
-    df_pass = df.loc[(df['player_name'] == menu_player) & (df['type_name'] == 'Pass')]
+    df_pass = df.loc[(df['player_name'].isin(menu_player)) & (df['type_name'] == 'Pass')]
 
     frequency = df_pass['pass_recipient_name'].value_counts().reset_index()
     frequency.columns = ['pass_recipient_name', 'frequency']
@@ -902,7 +902,7 @@ elif typeplot == 'Pressure Map':
     pressure_map_3d(fig)
 else:
     shot_map_3d(fig)
-    df_shot = df.loc[(df['player_name'] == menu_player) & (df['type_name'] == 'Shot')]
+    df_shot = df.loc[(df['player_name'].isin(menu_player)) & (df['type_name'] == 'Shot')]
 
     frequency = df_shot['shot_outcome_name'].value_counts().reset_index()
     frequency.columns = ['shot_outcome_name', 'frequency']
