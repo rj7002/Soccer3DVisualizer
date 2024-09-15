@@ -544,7 +544,13 @@ def pass_map_3d(fig):
         
         # Apex will be above the line connecting p1 and p2
         distance = calculate_distance(x1, y1, x2, y2)
-        if distance > 50:
+        if distance > 80:
+            h = 4*(randint(27,28)-20)
+        elif distance > 70:
+            h = 4*(randint(26,27)-20)
+        elif distance > 60:
+            h = 4*(randint(25,26)-20)
+        elif distance > 50:
             h = 4*(randint(23,24)-20)
         elif distance > 40:
             h = 4*(randint(20,21)-20)
