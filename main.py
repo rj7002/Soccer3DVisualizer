@@ -414,15 +414,15 @@ def create_pitch_3d():
             showbackground=True,   # Optionally keep the background
             backgroundcolor='green'
         ),
-        aspectmode='data',
-        aspectratio=dict(x=2, y=1.4, z=0.2),  # Adjust aspect ratio if needed
+        # aspectmode='data',
+        # aspectratio=dict(x=2, y=1.4, z=0.2),  # Adjust aspect ratio if needed
     ), showlegend=False,
-     margin=dict(l=0, r=0, t=0, b=0),
-                scene_aspectmode="data",
-                height=1000,
-                scene_camera=dict(
-                    eye=dict(x=0, y=2.5, z=5.3)
-                ),)
+      margin=dict(l=20, r=20, t=20, b=20),
+            scene_aspectmode="data",
+            height=800,
+            scene_camera=dict(
+                eye=dict(x=0, y=3, z=0.7)
+            ),)
     
     return fig
     # Show figure
