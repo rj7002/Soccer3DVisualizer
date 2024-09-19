@@ -356,6 +356,7 @@ def shot_freeze_frame_3d(fig,shot_df, tag, keeper_cone=True):
     away_color = 'blue'
 
     # Create 3D figure
+    st.write(shot)
     if shot['team'] != team_1:
         shot['player_location'][0] = pitch_width-shot['player_location'][0]
         shot['shot_end_location'][0] = pitch_width-shot['shot_end_location'][0]
