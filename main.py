@@ -230,7 +230,7 @@ def create_3d_plot(df, event_dict, chosen_timestamp, displayed_event, voronoi,fi
         elif row['team'] == team_2:
             color = away_color if row['teammate'] else home_color
         marker = 'diamond' if row['keeper'] else 'cross' if row['actor'] else 'circle'
-        size = 15 if row['keeper'] else 15 if row['actor'] else 7
+        size = 7 if row['keeper'] else 7 if row['actor'] else 7
         hover = 'Goalkeeper' if row['keeper'] else 'Other Players' if not row['actor'] else row['player']
         fig.add_trace(go.Scatter3d(
             x=[row['player_location'][0]],
@@ -352,7 +352,7 @@ def shot_freeze_frame_3d(fig,shot_df, tag, keeper_cone=True):
     for player in shot['shot_freeze_frame']:
         color = home_color if player['teammate'] == True else away_color
         symbol = 'diamond' if player['position']['name'] == 'Goalkeeper' else 'circle'
-        size = 15 if player['position']['name'] == 'Goalkeeper' else 7
+        size = 7 if player['position']['name'] == 'Goalkeeper' else 7
         fig.add_trace(go.Scatter3d(
             x=[player['location'][0]],
             y=[player['location'][1]],
@@ -396,7 +396,7 @@ def shot_freeze_frame_3d(fig,shot_df, tag, keeper_cone=True):
         y=[80-shot['location'][1]],
         z=[0],
         mode='markers',
-        marker=dict(color=color, size=15, symbol='cross', line=dict(color='black', width=2)),
+        marker=dict(color=color, size=7, symbol='cross', line=dict(color='black', width=2)),
         hoverinfo='text',
         hovertext=f"{shot['player']}"
     ))
