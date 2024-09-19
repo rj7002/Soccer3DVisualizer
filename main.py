@@ -364,7 +364,7 @@ def shot_freeze_frame_3d(fig,shot_df, tag, keeper_cone=True):
             size = 7 if player['position']['name'] == 'Goalkeeper' else 7
             fig.add_trace(go.Scatter3d(
                 x=[pitch_width-player['location'][0]],
-                y=[80-player['location'][1]],
+                y=[player['location'][1]],
                 z=[0],  # Set z-coordinate for ground level
                 mode='markers',
                 marker=dict(color=color, size=size, symbol=symbol, line=dict(color='black', width=1)),
@@ -376,7 +376,7 @@ def shot_freeze_frame_3d(fig,shot_df, tag, keeper_cone=True):
         color = home_color if shot['team'] == team_1 else away_color
         fig.add_trace(go.Scatter3d(
             x=[pitch_width-shot['location'][0]],
-            y=[80-shot['location'][1]],
+            y=[shot['location'][1]],
             z=[0],
             mode='markers',
             marker=dict(color=color, size=7, symbol='cross', line=dict(color='black', width=2)),
@@ -388,7 +388,7 @@ def shot_freeze_frame_3d(fig,shot_df, tag, keeper_cone=True):
         z2 = shot['shot_end_location'][2] if len(shot['shot_end_location']) > 2 else 0
         
         if z2 > 0:  # Only create curves for shots where z2 is greater than 0
-            x_curve, y_curve, z_curve = generate_smooth_curve(pitch_width-shot['location'][0], pitch_width-shot['shot_end_location'][0], 80-shot['location'][1], 80-shot['shot_end_location'][1], z2)
+            x_curve, y_curve, z_curve = generate_smooth_curve(pitch_width-shot['location'][0], pitch_width-shot['shot_end_location'][0], shot['location'][1], shot['shot_end_location'][1], z2)
             
             fig.add_trace(go.Scatter3d(
                 x=x_curve,
@@ -402,7 +402,7 @@ def shot_freeze_frame_3d(fig,shot_df, tag, keeper_cone=True):
         else:
             fig.add_trace(go.Scatter3d(
             x=[pitch_width-shot['location'][0], pitch_width-shot['shot_end_location'][0]],
-            y=[80-shot['location'][1], 80-shot['shot_end_location'][1]],
+            y=[shot['location'][1], shot['shot_end_location'][1]],
             z=[0, 0],  # Line stays on the ground
             mode='lines',
             line=dict(color=color, width=5),
