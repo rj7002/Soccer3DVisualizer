@@ -96,13 +96,13 @@ def create_pitch_3d():
         x = x_center + radius * np.cos(theta)  # Flip around the Y-axis
         y = y_center + radius * np.sin(theta)
         z = z_center * np.ones_like(x)
-        fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='lines', name=name, line=dict(color='white', width=4 * scale_factor)))
+        fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='lines', name=name, line=dict(color='white', width=4 * scale_factor),hoverinfo='none'))
     def add_arc2(x_center, y_center, z_center, radius, theta1, theta2, name):
         theta = np.linspace(np.deg2rad(theta1), np.deg2rad(theta2), 100)
         x = x_center - radius * np.cos(theta)  # Flip around the Y-axis
         y = y_center + radius * np.sin(theta)
         z = z_center * np.ones_like(x)
-        fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='lines', name=name, line=dict(color='white', width=4 * scale_factor)))
+        fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='lines', name=name, line=dict(color='white', width=4 * scale_factor),hoverinfo='none'))
     draw_goals(fig,'home')
     draw_goals(fig,'away')
     
@@ -305,6 +305,15 @@ def create_3d_plot(df, event_dict, chosen_timestamp, displayed_event, voronoi,fi
                 hoverinfo='none',
             ))
     elif row['type'] == 'Shot':
+        fig.add_trace(go.Scatter3d(
+        x=[row['location'][0]],
+        y=[80-row['location'][1]],
+        z=[0],
+        mode='markers',
+        marker=dict(color=color, size=7, symbol='cross', line=dict(color='black', width=2)),
+        hoverinfo='text',
+        hovertext=f"{row['player']}"
+    ))
         z2 = row['shot_end_location'][2] if len(row['shot_end_location']) > 2 else 0
         if z2 > 0:  # Only create curves for shots where z2 is greater than 0
             x_curve, y_curve, z_curve = generate_smooth_curve(row['location'][0], row['shot_end_location'][0], 80-row['location'][1], 80-row['shot_end_location'][1], z2)
