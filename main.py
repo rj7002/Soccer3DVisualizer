@@ -365,7 +365,7 @@ def shot_freeze_frame_3d(fig,shot_df, tag, keeper_cone=True):
         size = 7 if player['position']['name'] == 'Goalkeeper' else 7
         fig.add_trace(go.Scatter3d(
             x=[player['location'][0]],
-            y=[player['location'][1]],
+            y=[80-player['location'][1]],
             z=[0],  # Set z-coordinate for ground level
             mode='markers',
             marker=dict(color=color, size=size, symbol=symbol, line=dict(color='black', width=1)),
