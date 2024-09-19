@@ -356,115 +356,22 @@ def shot_freeze_frame_3d(fig,shot_df, tag, keeper_cone=True):
     away_color = 'blue'
 
     # Create 3D figure
-    if shot['team'] != team_1:
-        shot['location'][0] = pitch_width-shot['location'][0]
-        shot['shot_end_location'][0] = pitch_width-shot['shot_end_location'][0]
+    
+
     # Add players to the plot
-        for player in shot['shot_freeze_frame']:
-            color = home_color if player['teammate'] == True else away_color
-            symbol = 'diamond' if player['position']['name'] == 'Goalkeeper' else 'circle'
-            size = 7 if player['position']['name'] == 'Goalkeeper' else 7
-            fig.add_trace(go.Scatter3d(
-                x=[pitch_width-player['location'][0]],
-                y=[player['location'][1]],
-                z=[0],  # Set z-coordinate for ground level
-                mode='markers',
-                marker=dict(color=color, size=size, symbol=symbol, line=dict(color='black', width=1)),
-                hoverinfo='text',
-                hovertext=f"{player['player']['name']}"
-            ))
-        color = home_color if shot['team'] == team_2 else away_color
+    for player in shot['shot_freeze_frame']:
+        color = home_color if player['teammate'] == True else away_color
+        symbol = 'diamond' if player['position']['name'] == 'Goalkeeper' else 'circle'
+        size = 7 if player['position']['name'] == 'Goalkeeper' else 7
         fig.add_trace(go.Scatter3d(
-            x=[pitch_width-shot['location'][0]],
-            y=[shot['location'][1]],
-            z=[0],
+            x=[player['location'][0]],
+            y=[player['location'][1]],
+            z=[0],  # Set z-coordinate for ground level
             mode='markers',
-            marker=dict(color=color, size=7, symbol='cross', line=dict(color='black', width=2)),
+            marker=dict(color=color, size=size, symbol=symbol, line=dict(color='black', width=1)),
             hoverinfo='text',
-            hovertext=f"{shot['player']}"
+            hovertext=f"{player['player']['name']}"
         ))
-    
-        # Add the shot line
-        z2 = shot['shot_end_location'][2] if len(shot['shot_end_location']) > 2 else 0
-        
-        if z2 > 0:  # Only create curves for shots where z2 is greater than 0
-            x_curve, y_curve, z_curve = generate_smooth_curve(pitch_width-shot['location'][0], pitch_width-shot['shot_end_location'][0], shot['location'][1], shot['shot_end_location'][1], z2)
-            
-            fig.add_trace(go.Scatter3d(
-                x=x_curve,
-                y=y_curve,
-                z=z_curve,
-                mode='lines',
-                line=dict(color=color, width=5),  # Change color if needed
-                name='Shot Trajectory',
-                hoverinfo='none',
-            ))
-        else:
-            fig.add_trace(go.Scatter3d(
-            x=[pitch_width-shot['location'][0], shot['shot_end_location'][0]],
-            y=[shot['location'][1], 80-shot['shot_end_location'][1]],
-            z=[0, 0],  # Line stays on the ground
-            mode='lines',
-            line=dict(color=color, width=5),
-            name='Shot Path',
-            hoverinfo='none'
-        ))
-
-
-    else:
-        shot['location'][1] = 80-shot['location'][0]
-        shot['shot_end_location'][1] = 80-shot['shot_end_location'][1]
-        for player in shot['shot_freeze_frame']:
-            color = home_color if player['teammate'] == True else away_color
-            symbol = 'diamond' if player['position']['name'] == 'Goalkeeper' else 'circle'
-            size = 7 if player['position']['name'] == 'Goalkeeper' else 7
-            fig.add_trace(go.Scatter3d(
-                x=[player['location'][0]],
-                y=[80-player['location'][1]],
-                z=[0],  # Set z-coordinate for ground level
-                mode='markers',
-                marker=dict(color=color, size=size, symbol=symbol, line=dict(color='black', width=1)),
-                hoverinfo='text',
-                hovertext=f"{player['player']['name']}"
-            ))
-        color = home_color if shot['team'] == team_2 else away_color
-        fig.add_trace(go.Scatter3d(
-            x=[shot['location'][0]],
-            y=[80-shot['location'][1]],
-            z=[0],
-            mode='markers',
-            marker=dict(color=color, size=7, symbol='cross', line=dict(color='black', width=2)),
-            hoverinfo='text',
-            hovertext=f"{shot['player']}"
-        ))
-    
-        # Add the shot line
-        z2 = shot['shot_end_location'][2] if len(shot['shot_end_location']) > 2 else 0
-        
-        if z2 > 0:  # Only create curves for shots where z2 is greater than 0
-            x_curve, y_curve, z_curve = generate_smooth_curve(shot['location'][0], shot['shot_end_location'][0], 80-shot['location'][1], 80-shot['shot_end_location'][1], z2)
-            
-            fig.add_trace(go.Scatter3d(
-                x=x_curve,
-                y=y_curve,
-                z=z_curve,
-                mode='lines',
-                line=dict(color=color, width=5),  # Change color if needed
-                name='Shot Trajectory',
-                hoverinfo='none',
-            ))
-        else:
-            fig.add_trace(go.Scatter3d(
-            x=[shot['location'][0], shot['shot_end_location'][0]],
-            y=[80-shot['location'][1], 80-shot['shot_end_location'][1]],
-            z=[0, 0],  # Line stays on the ground
-            mode='lines',
-            line=dict(color=color, width=5),
-            name='Shot Path',
-            hoverinfo='none'
-        ))
-    
-    
 
     # If keeper_cone is enabled, draw the goalkeeper's cone
     
@@ -493,7 +400,44 @@ def shot_freeze_frame_3d(fig,shot_df, tag, keeper_cone=True):
     # )
 
     # Add the shot location
-   
+    color = home_color if shot['team'] == team_2 else away_color
+    fig.add_trace(go.Scatter3d(
+        x=[shot['location'][0]],
+        y=[80-shot['location'][1]],
+        z=[0],
+        mode='markers',
+        marker=dict(color=color, size=7, symbol='cross', line=dict(color='black', width=2)),
+        hoverinfo='text',
+        hovertext=f"{shot['player']}"
+    ))
+
+    # Add the shot line
+    z2 = shot['shot_end_location'][2] if len(shot['shot_end_location']) > 2 else 0
+    
+    if z2 > 0:  # Only create curves for shots where z2 is greater than 0
+        x_curve, y_curve, z_curve = generate_smooth_curve(shot['location'][0], shot['shot_end_location'][0], 80-shot['location'][1], 80-shot['shot_end_location'][1], z2)
+        
+        fig.add_trace(go.Scatter3d(
+            x=x_curve,
+            y=y_curve,
+            z=z_curve,
+            mode='lines',
+            line=dict(color=color, width=5),  # Change color if needed
+            name='Shot Trajectory',
+            hoverinfo='none',
+        ))
+    else:
+        fig.add_trace(go.Scatter3d(
+        x=[shot['location'][0], shot['shot_end_location'][0]],
+        y=[80-shot['location'][1], 80-shot['shot_end_location'][1]],
+        z=[0, 0],  # Line stays on the ground
+        mode='lines',
+        line=dict(color=color, width=5),
+        name='Shot Path',
+        hoverinfo='none'
+    ))
+
+
     # Handle shot outcomes
     
 
