@@ -373,6 +373,29 @@ def shot_freeze_frame_3d(fig,shot_df, tag, keeper_cone=True):
             hovertext=f"{player['player']['name']}"
         ))
 
+    visible_area = np.array(shot.iloc[0].visible_area).reshape(-1, 2)
+
+    # # Create 3D figure
+
+    # Collect player locations for Voronoi computation
+    player_locations = []
+    for _, row in frame.iterrows():
+        player_locations.append(row['player_location'])
+
+    player_locations = np.array(player_locations)
+
+    # Compute Voronoi polygons if required
+    if voronoi:
+        fig.add_trace(go.Mesh3d(
+        x=visible_area[:, 0],
+        y=visible_area[:, 1],
+        z=[0] * len(visible_area),  # Set z-coordinate for the polygon
+        color='darkgray',  # You can change this color
+        opacity=0.5,
+        name='Visible Area',
+        hoverinfo='none'
+    ))
+
     # If keeper_cone is enabled, draw the goalkeeper's cone
     
 
@@ -756,11 +779,11 @@ if trythreesixty:
 
                 with tab1:
                     shot_cols = ['player', 'team', 'timestring', 'shot_outcome', 'shot_freeze_frame', 'location', 'shot_end_location']
-                    shot_df = event_df[event_df['shot_outcome'].notna()][shot_cols]
+                    shot_df = event_df[event_df['shot_outcome'].notna()]
                     shot_df['tag'] = shot_df['player'] + ' - ' + shot_df['timestring'] + ' ( ' + shot_df['shot_outcome'] + ' )'
 
                     tag = st.selectbox("Choose shot",options=shot_df['tag'].to_list())
-
+                    voronoi = st.checkbox("Highlight visible area",help='Not all parts of the field are visible in each frame so some players may not appear')
                     shot_freeze_frame_3d(fig,shot_df, tag, keeper_cone=False)
 
                 with tab2:
