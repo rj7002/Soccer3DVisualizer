@@ -231,7 +231,12 @@ def create_3d_plot(df, event_dict, chosen_timestamp, displayed_event, voronoi,fi
             color = away_color if row['teammate'] else home_color
         marker = 'diamond' if row['keeper'] else 'cross' if row['actor'] else 'circle'
         size = 7 if row['keeper'] else 7 if row['actor'] else 7
-        hover = 'Goalkeeper' if row['keeper'] else 'Other Players' if not row['actor'] else row['player']
+        hover = (
+            'Teammate' if row['teammate'] else
+            'Goalkeeper' if row['keeper'] else
+            'Other Players' if not row['actor'] else
+            row['player']
+        )
         fig.add_trace(go.Scatter3d(
             x=[row['player_location'][0]],
             y=[row['player_location'][1]],
