@@ -334,7 +334,8 @@ def create_3d_plot(df, event_dict, chosen_timestamp, displayed_event, voronoi,fi
             z=[0, 0],  # Line stays on the ground
             mode='lines',
             line=dict(color=color, width=5),
-            name='Shot Path'
+            name='Shot Path',
+            hoverinfo='none'
         ))
 
 
@@ -432,7 +433,8 @@ def shot_freeze_frame_3d(fig,shot_df, tag, keeper_cone=True):
         z=[0, 0],  # Line stays on the ground
         mode='lines',
         line=dict(color=color, width=5),
-        name='Shot Path'
+        name='Shot Path',
+        hoverinfo='none'
     ))
 
 
