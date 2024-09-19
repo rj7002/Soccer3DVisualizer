@@ -24,7 +24,7 @@ st.markdown("""
     <p class="big-font">Soccer 3D Visualizer</p>
     """, unsafe_allow_html=True)
 
-st.sidebar.write('View multiple 3D maps such as shot maps, passing maps, receiving maps, pressure maps. Data from Statsbomb API. Inspired by the work of Andrii Gozhulovskyi')
+st.sidebar.write('View multiple 3D maps such as shot maps, passing maps, receiving maps, pressure maps with data from Statsbomb API. Inspired by the work of Andrii Gozhulovskyi and Aleks Kapich.')
 
 def create_pitch_3d():
     # Create figure
