@@ -427,7 +427,7 @@ def shot_freeze_frame_3d(fig,shot_df, tag, keeper_cone=True):
                 hoverinfo='text',
                 hovertext=f"{player['player']['name']}"
             ))
-         color = home_color if shot['team'] == team_2 else away_color
+        color = home_color if shot['team'] == team_2 else away_color
         fig.add_trace(go.Scatter3d(
             x=[shot['location'][0]],
             y=[80-shot['location'][1]],
