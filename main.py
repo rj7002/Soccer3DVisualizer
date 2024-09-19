@@ -351,6 +351,7 @@ def generate_smooth_curve(x_start, x_end, y_start, y_end, z_end):
 def shot_freeze_frame_3d(fig,shot_df, tag, keeper_cone=True):
     
     shot = shot_df[shot_df['tag'] == tag].iloc[0]
+    st.write(shot)
 
     home_color = 'red'
     away_color = 'blue'
