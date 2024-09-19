@@ -639,7 +639,6 @@ def create_timestring(row):
     return minute_component + ':' + second_component
 pitch_width = 120
 pitch_height = 80
-fig, ax = createPitch(pitch_width, pitch_height, 'yards', 'gray')
 comps = sb.competitions()
 compets = []
 for index, row in comps.iterrows():
