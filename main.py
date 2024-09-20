@@ -103,9 +103,8 @@ def create_pitch_3d():
         y = y_center + radius * np.sin(theta)
         z = z_center * np.ones_like(x)
         fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='lines', name=name, line=dict(color='white', width=4 * scale_factor),hoverinfo='none'))
-    if hide != 1:
-        draw_goals(fig,'home')
-        draw_goals(fig,'away')
+    draw_goals(fig,'home')
+    draw_goals(fig,'away')
     
 
 
@@ -689,13 +688,13 @@ def calculate_distance(x1, y1, x2, y2):
     """Calculate the distance between two points (x1, y1) and (x2, y2)."""
     return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
-def generate_arc_points(p1, p2, apex, num_points=100):
-    """Generate points on a quadratic Bezier curve (arc) between p1 and p2 with an apex."""
-    t = np.linspace(0, 1, num_points)
-    x = (1 - t)**2 * p1[0] + 2 * (1 - t) * t * apex[0] + t**2 * p2[0]
-    y = (1 - t)**2 * p1[1] + 2 * (1 - t) * t * apex[1] + t**2 * p2[1]
-    z = (1 - t)**2 * p1[2] + 2 * (1 - t) * t * apex[2] + t**2 * p2[2]
-    return x, y, z
+# def generate_arc_points(p1, p2, apex, num_points=100):
+#     """Generate points on a quadratic Bezier curve (arc) between p1 and p2 with an apex."""
+#     t = np.linspace(0, 1, num_points)
+#     x = (1 - t)**2 * p1[0] + 2 * (1 - t) * t * apex[0] + t**2 * p2[0]
+#     y = (1 - t)**2 * p1[1] + 2 * (1 - t) * t * apex[1] + t**2 * p2[1]
+#     z = (1 - t)**2 * p1[2] + 2 * (1 - t) * t * apex[2] + t**2 * p2[2]
+#     return x, y, z
 def generate_smooth_curve(x_start, x_end, y_start, y_end, z_end):
     t = np.linspace(0, 1, num=100)  # Parameter t from 0 to 1
     x_curve = (1 - t) * x_start + t * x_end
@@ -802,8 +801,6 @@ mask_1 = df.loc[df['team_name'] == team_1]
 mask_2 = df.loc[df['team_name'] == team_2]
 player_names_1 = mask_1['player_name'].dropna().unique()
 player_names_2 = mask_2['player_name'].dropna().unique()
-hide = st.sidebar.checkbox('Hide Goal Posts')
-
 
 
 # List of activities for drop-down menus
@@ -859,10 +856,10 @@ else:
 
     def pass_map_3d(fig):
         # Filter the dataframe for passes by the selected player
-        df_pass = df.loc[(df['type_name'] == 'Pass')]
+        df_pass = df.loc[(df['player_name'].isin(menu_player)) & (df['type_name'] == 'Pass')]
         df_high = df_pass[df_pass['pass_height_name'] == 'High Pass']
         df_pass = df_pass[df_pass['pass_height_name'] == 'Ground Pass']
-        # st.write(df_pass)
+
         location = df_pass['location'].tolist()
         pass_end_location = df_pass['pass_end_location'].tolist()
         passer = df_pass['player_name'].tolist()
@@ -871,7 +868,7 @@ else:
         periods = df_pass['period'].tolist()
         minutes = df_pass['minute'].tolist()
         seconds = df_pass['second'].tolist()
-    
+
         # Determine the color based on the team
         color = 'blue' if menu_team == team_1 else 'red'
         
@@ -884,7 +881,7 @@ else:
         # x2=x2*0.8
         # y1=y1*0.8
         # y2=y2*0.8
-    
+
         if menu_team != team_1:
             x1 = pitch_width - x1
             y1 = y1
@@ -896,7 +893,7 @@ else:
         
         # Create figure
         # if menu_team != team_1:
-    
+
         #     y1 = y1+10
         #     y2 = y2+10
         #     x1=x1+10
@@ -919,7 +916,7 @@ else:
                 line=dict(color=color, width=5),
                 marker=dict(size=3),
                 hoverinfo='text',
-                hovertext=f'{player} {passheight} to {reciever}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                hovertext=f'{player} {passheight} to {reciever} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
             ))
             # fig.add_trace(go.Scatter3d(
             #     x=[x1[i]],
@@ -936,7 +933,7 @@ else:
                 marker=dict(color=color,size=5,symbol='circle',
                 ),
                 hoverinfo='text',
-                hovertext=f'{player} {passheight} to {reciever}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                hovertext=f'{player} {passheight} to {reciever} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
             ))
         location = df_high['location'].tolist()
         pass_end_location = df_high['pass_end_location'].tolist()
@@ -953,9 +950,9 @@ else:
             x_coords2 = pitch_width - x_coords2
             y_coords2 = y_coords2
             
-    
+
         z_value = 0  # Fixed z value
-    
+
         for i in range(len(x_coords) - 1):
             x1 = x_coords[i]
             y1 = y_coords[i]
@@ -964,7 +961,7 @@ else:
             player = passer[i]
             reciever = recepient[i]
             passheight = passheightname[i].lower()
-    
+
             
             # Define the start and end points
             p1 = np.array([x1, y1, z_value])
@@ -972,13 +969,7 @@ else:
             
             # Apex will be above the line connecting p1 and p2
             distance = calculate_distance(x1, y1, x2, y2)
-            if distance > 80:
-                h = 4*(randint(27,28)-20)
-            elif distance > 70:
-                h = 4*(randint(26,27)-20)
-            elif distance > 60:
-                h = 4*(randint(25,26)-20)
-            elif distance > 50:
+            if distance > 50:
                 h = 4*(randint(23,24)-20)
             elif distance > 40:
                 h = 4*(randint(20,21)-20)
@@ -1002,7 +993,7 @@ else:
                 line=dict(width=5,color=color),
                 name=f'Arc {i + 1}',
                 hoverinfo='text',
-                hovertext=f'{player} {passheight} to {reciever}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                hovertext=f'{player} {passheight} to {reciever} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
             ))
             fig.add_trace(go.Scatter3d(
                 x=[x_coords2[i]],
@@ -1012,16 +1003,15 @@ else:
                 marker=dict(color=color,size=5,symbol='circle',
                 ),
                 hoverinfo='text',
-                hovertext=f'{player} {passheight} to {reciever}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                hovertext=f'{player} {passheight} to {reciever} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
             ))
     def ball_receipt_map_3d(fig):
         # Filter the dataframe for ball receipts by the selected player
-        df_ball_rec = df.loc[(df['type_name'] == 'Ball Receipt*')]
+        df_ball_rec = df.loc[(df['player_name'].isin(menu_player)) & (df['type_name'] == 'Ball Receipt*')]
         location = df_ball_rec['location'].tolist()
         periods = df_ball_rec['period'].tolist()
         minutes = df_ball_rec['minute'].tolist()
         seconds = df_ball_rec['second'].tolist()
-        players = df_ball_rec['player_name'].tolist()
         # Determine the color based on the team
         color = 'blue' if menu_team == team_1 else 'red'
         
@@ -1033,7 +1023,7 @@ else:
         if menu_team != team_1:
             x = pitch_width - x
             y = y
-    
+
         # Add the ball receipts as markers in 3D
         fig.add_trace(go.Scatter3d(
             x=x,
@@ -1043,19 +1033,18 @@ else:
             marker=dict(color=color, size=7, symbol='circle', opacity=0.5),
             name='Ball Receipts',
             hoverinfo='text',
-            hovertext = [f'{players[i]}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}' for i in range(len(x))]
-    
+            hovertext = [f'Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}' for i in range(len(x))]
+
         ))
-    
+
     def carry_map_3d(fig):
         # Filter the dataframe for carries by the selected player
-        df_carry = df.loc[(df['type_name'] == 'Carry')]
+        df_carry = df.loc[(df['player_name'].isin(menu_player)) & (df['type_name'] == 'Carry')]
         location = df_carry['location'].tolist()
         carry_end_location = df_carry['carry_end_location'].tolist()
         periods = df_carry['period'].tolist()
         minutes = df_carry['minute'].tolist()
         seconds = df_carry['second'].tolist()
-        players = df_carry['player_name'].tolist()
         # Determine the color based on the team
         color = 'blue' if menu_team == team_1 else 'red'
         
@@ -1083,11 +1072,11 @@ else:
                 y=[y1[i], y2[i]],
                 z=[0, 0],  # Assuming carries occur at the same z-coordinate
                 mode='lines',
-                line=dict(color=color, width=5),
+                line=dict(color=color, width=5,dash='dash'),
                 marker=dict(size=5, symbol='circle', color=color),
                 name='Carries',
                 hoverinfo='text',
-                hovertext = [f'{players[i]}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}']
+                hovertext = [f'Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}']
             ))
             fig.add_trace(go.Scatter3d(
                 x=[x2[i]],
@@ -1098,18 +1087,17 @@ else:
                 marker=dict(size=5, symbol='circle', color=color),
                 name='Shots',
                 hoverinfo='text',
-                hovertext = [f'{players[i]}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}']
+                hovertext = [f'Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}']
             ))
-    
+
     def pressure_map_3d(fig):
         # Filter the dataframe for pressure by the selected player
-        df_pressure = df.loc[(df['type_name'] == 'Pressure')]
+        df_pressure = df.loc[(df['player_name'].isin(menu_player)) & (df['type_name'] == 'Pressure')]
         location = df_pressure['location'].tolist()
         periods = df_pressure['period'].tolist()
         minutes = df_pressure['minute'].tolist()
         seconds = df_pressure['second'].tolist()
-        players = df_pressure['player_name'].tolist()
-    
+
         # Determine the color based on the team
         color = 'blue' if menu_team == team_1 else 'red'
         
@@ -1121,7 +1109,7 @@ else:
         if menu_team != team_1:
             x = pitch_width - x
             y = y
-    
+
         # Add pressure points as markers in 3D
         fig.add_trace(go.Scatter3d(
             x=x,
@@ -1131,23 +1119,19 @@ else:
             marker=dict(color=color, size=12, symbol='circle', opacity=0.5),
             name='Pressure Points',
             hoverinfo='text',
-            hovertext = [f'{players[i]}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}']
+            hovertext = [f'Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}' for i in range(len(x))]
         ))
-    
+
     def shot_map_3d(fig):
         # Filter the dataframe for shots by the selected player
-        df_shot = df.loc[(df['type_name'] == 'Shot')]
-        # st.write(df_shot)
+        df_shot = df.loc[(df['player_name'].isin(menu_player)) & (df['type_name'] == 'Shot')]
         location = df_shot['location'].tolist()
         shotend = df_shot['shot_end_location'].tolist()
         outcome = df_shot['shot_outcome_name'].tolist()
         periods = df_shot['period'].tolist()
         minutes = df_shot['minute'].tolist()
         seconds = df_shot['second'].tolist()
-        players = df_shot['player_name'].tolist()
-        shottypes = df_shot['shot_type_name'].tolist()
-    
-    
+
         # Determine the color based on the team
         color = 'blue' if menu_team == team_1 else 'red'
         
@@ -1158,7 +1142,7 @@ else:
         x2 = np.array([el[0] for el in shotend])
         y2 = pitch_height - np.array([el[1] for el in shotend])
         z2 = np.array([el[2] if len(el) > 2 else 0 for el in shotend])
-    
+
         # Define target positions for the shots
         if menu_team == team_1:
             x2 = x2
@@ -1171,43 +1155,27 @@ else:
             # y2 = pitch_height-y2
             # x2 = np.full((len(x1)), 0)    # Target x-coordinate
             # y2 = np.full((len(y1)), 40)   # Target y-coordinate
-    
+
         # Calculate direction vectors
         u = x2 - x1
         v = y2 - y1
         # y1 = y1+5
         # y2 = y2+5
-    
-        # Add shots as lines (arrows) in 3D
-        # def generate_smooth_curve(x_start, x_end, y_start, y_end, z_end):
-        #     t = np.linspace(0, 1, num=100)  # Parameter t from 0 to 1
-        #     x_curve = (1 - t) * x_start + t * x_end
-        #     y_curve = (1 - t) * y_start + t * y_end
-        #     z_curve = z_end * t * (2 - t) # Parabolic curve concave down starting at z = 0
-        #     return x_curve, y_curve, z_curve
 
+        # Add shots as lines (arrows) in 3D
         def generate_smooth_curve(x_start, x_end, y_start, y_end, z_end):
             t = np.linspace(0, 1, num=100)  # Parameter t from 0 to 1
             x_curve = (1 - t) * x_start + t * x_end
             y_curve = (1 - t) * y_start + t * y_end
-            
-            # Determine the distance from 35 and 45
-            distance_to_35 = abs(y_end - 35)
-            distance_to_45 = abs(y_end - 45)
-            
-            # Calculate curve strength based on proximity to 35 or 45
-            if distance_to_35 < distance_to_45:
-                # Closer to 35: start with a base strength and increase it
-                curve_strength = 0.5 + (1 - (distance_to_35 / 10)) * 0.05  # Adjust based on the distance
-                y_curve -= curve_strength * np.sin(np.pi * t)  # Bend left
-            else:
-                # Closer to 45: start with a base strength and increase it
-                curve_strength = 0.5 + (1 - (distance_to_45 / 10)) * 0.05  # Adjust based on the distance
-                y_curve += curve_strength * np.sin(np.pi * t)  # Bend right
-            
-            z_curve = z_end * t * (2 - t)  # Parabolic curve concave down starting at z = 0
+            z_curve = z_end * t ** 2  # Parabolic curve rising to z_end
             return x_curve, y_curve, z_curve
-    
+        def generate_smooth_curve(x_start, x_end, y_start, y_end, z_end):
+            t = np.linspace(0, 1, num=100)  # Parameter t from 0 to 1
+            x_curve = (1 - t) * x_start + t * x_end
+            y_curve = (1 - t) * y_start + t * y_end
+            z_curve = z_end * t * (2 - t) # Parabolic curve concave down starting at z = 0
+            return x_curve, y_curve, z_curve
+
         # Plot each shot
         for i in range(len(x1)):
             shotoutcome = outcome[i]
@@ -1223,9 +1191,9 @@ else:
                         line=dict(color=color, width=5),  # Change color if needed
                         name='Shot Trajectory',
                         hoverinfo='text',
-                        hovertext=f'{players[i]}<br>{shottypes[i]} {shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                        hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
                     ))
-    
+
                     # Plot the start and end points as markers
                     fig.add_trace(go.Scatter3d(
                         x=[x2[i], x2[i]],
@@ -1235,7 +1203,7 @@ else:
                         marker=dict(size=5, symbol='circle', color=color),  # Change color if needed
                         name='Shot Points',
                         hoverinfo='text',
-                        hovertext=f'{players[i]}<br>{shottypes[i]} {shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                        hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
                     ))
                 else:
                     fig.add_trace(go.Scatter3d(
@@ -1247,7 +1215,7 @@ else:
                     marker=dict(size=5, symbol='circle', color=color),
                     name='Shots',
                     hoverinfo='text',
-                    hovertext=f'{players[i]}<br>{shottypes[i]} {shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                    hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
                 ))
                     fig.add_trace(go.Scatter3d(
                         x=[x2[i]],
@@ -1258,7 +1226,7 @@ else:
                         marker=dict(size=5, symbol='circle', color=color),
                         name='Shots',
                         hoverinfo='text',
-                        hovertext=f'{players[i]}<br>{shottypes[i]} {shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                        hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
                     ))
             else:
                 if z2[i] > 0:  # Only create curves for shots where z2 is greater than 0
@@ -1272,9 +1240,9 @@ else:
                         line=dict(color=color, width=5),  # Change color if needed
                         name='Shot Trajectory',
                         hoverinfo='text',
-                        hovertext=f'{players[i]}<br>{shottypes[i]} {shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                        hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
                     ))
-    
+
                     # Plot the start and end points as markers
                     fig.add_trace(go.Scatter3d(
                         x=[x2[i], x2[i]],
@@ -1284,7 +1252,7 @@ else:
                         marker=dict(size=5, symbol='circle', color=color),  # Change color if needed
                         name='Shot Points',
                         hoverinfo='text',
-                        hovertext=f'{players[i]}<br>{shottypes[i]} {shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                        hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
                     ))
                 else:
                     fig.add_trace(go.Scatter3d(
@@ -1296,7 +1264,7 @@ else:
                     marker=dict(size=5, symbol='circle', color=color),
                     name='Shots',
                     hoverinfo='text',
-                    hovertext=f'{players[i]}<br>{shottypes[i]} {shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                    hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
                 ))
                     fig.add_trace(go.Scatter3d(
                         x=[x2[i]],
@@ -1307,7 +1275,7 @@ else:
                         marker=dict(size=5, symbol='circle', color=color),
                         name='Shots',
                         hoverinfo='text',
-                        hovertext=f'{players[i]}<br>{shottypes[i]} {shotoutcome}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}'
+                        hovertext=f'{shotoutcome} Half: {periods[i]} Time: {minutes[i]}:{seconds[i]:02}'
                     ))
 
 
