@@ -1323,7 +1323,7 @@ else:
     elif typeplot == 'Pressure Map': 
         pressure_map_3d(fig)
     else:
-        df_shot = df.loc[(df['player_name'] == menu_player) & (df['type_name'] == 'Shot')]
+        df_shot = df.loc[(df['player_name'].isin(menu_player)) & (df['type_name'] == 'Shot')]
 
         frequency = df_shot['shot_outcome_name'].value_counts().reset_index()
         frequency.columns = ['shot_outcome_name', 'frequency']
