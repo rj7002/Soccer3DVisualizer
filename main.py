@@ -1163,17 +1163,38 @@ else:
         # y2 = y2+5
 
         # Add shots as lines (arrows) in 3D
+        # def generate_smooth_curve(x_start, x_end, y_start, y_end, z_end):
+        #     t = np.linspace(0, 1, num=100)  # Parameter t from 0 to 1
+        #     x_curve = (1 - t) * x_start + t * x_end
+        #     y_curve = (1 - t) * y_start + t * y_end
+        #     z_curve = z_end * t ** 2  # Parabolic curve rising to z_end
+        #     return x_curve, y_curve, z_curve
+        # def generate_smooth_curve(x_start, x_end, y_start, y_end, z_end):
+        #     t = np.linspace(0, 1, num=100)  # Parameter t from 0 to 1
+        #     x_curve = (1 - t) * x_start + t * x_end
+        #     y_curve = (1 - t) * y_start + t * y_end
+        #     z_curve = z_end * t * (2 - t) # Parabolic curve concave down starting at z = 0
+        #     return x_curve, y_curve, z_curve
         def generate_smooth_curve(x_start, x_end, y_start, y_end, z_end):
             t = np.linspace(0, 1, num=100)  # Parameter t from 0 to 1
             x_curve = (1 - t) * x_start + t * x_end
             y_curve = (1 - t) * y_start + t * y_end
-            z_curve = z_end * t ** 2  # Parabolic curve rising to z_end
-            return x_curve, y_curve, z_curve
-        def generate_smooth_curve(x_start, x_end, y_start, y_end, z_end):
-            t = np.linspace(0, 1, num=100)  # Parameter t from 0 to 1
-            x_curve = (1 - t) * x_start + t * x_end
-            y_curve = (1 - t) * y_start + t * y_end
-            z_curve = z_end * t * (2 - t) # Parabolic curve concave down starting at z = 0
+            
+            # Determine the distance from 35 and 45
+            distance_to_35 = abs(y_end - 35)
+            distance_to_45 = abs(y_end - 45)
+            
+            # Calculate curve strength based on proximity to 35 or 45
+            if distance_to_35 < distance_to_45:
+                # Closer to 35: start with a base strength and increase it
+                curve_strength = 0.5 + (1 - (distance_to_35 / 10)) * 0.05  # Adjust based on the distance
+                y_curve -= curve_strength * np.sin(np.pi * t)  # Bend left
+            else:
+                # Closer to 45: start with a base strength and increase it
+                curve_strength = 0.5 + (1 - (distance_to_45 / 10)) * 0.05  # Adjust based on the distance
+                y_curve += curve_strength * np.sin(np.pi * t)  # Bend right
+            
+            z_curve = z_end * t * (2 - t)  # Parabolic curve concave down starting at z = 0
             return x_curve, y_curve, z_curve
 
         # Plot each shot
