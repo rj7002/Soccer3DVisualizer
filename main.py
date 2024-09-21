@@ -376,11 +376,11 @@ def generate_smooth_curve(x_start, x_end, y_start, y_end, z_start, z_end, foot, 
     if foot in ['Right Foot', 'Left Foot'] and distance > 5:
         if foot == foottype:
             # Closer to 35: start with a base strength and increase it
-            curve_strength = 0.5 + (1 - (distance_to_35 / 10)) * 0.05  # Adjust based on the distance
+            curve_strength = 0.5 + (1 - (distance / 10)) * 0.05  # Adjust based on the distance
             y_curve -= curve_strength * np.sin(np.pi * t)  # Bend left
         else:
             # Closer to 45: start with a base strength and increase it
-            curve_strength = 0.5 + (1 - (distance_to_45 / 10)) * 0.05  # Adjust based on the distance
+            curve_strength = 0.5 + (1 - (distance / 10)) * 0.05  # Adjust based on the distance
             y_curve += curve_strength * np.sin(np.pi * t)  # Bend right
     
     # Create a parabolic curve for the z-axis starting from z_start
@@ -742,11 +742,11 @@ def generate_smooth_curve(x_start, x_end, y_start, y_end, z_start, z_end, foot, 
     if foot in ['Right Foot', 'Left Foot'] and distance > 5:
         if foot == foottype:
             # Closer to 35: start with a base strength and increase it
-            curve_strength = 0.5 + (1 - (distance_to_35 / 10)) * 0.05  # Adjust based on the distance
+            curve_strength = 0.5 + (1 - (distance / 10)) * 0.05  # Adjust based on the distance
             y_curve -= curve_strength * np.sin(np.pi * t)  # Bend left
         else:
             # Closer to 45: start with a base strength and increase it
-            curve_strength = 0.5 + (1 - (distance_to_45 / 10)) * 0.05  # Adjust based on the distance
+            curve_strength = 0.5 + (1 - (distance / 10)) * 0.05  # Adjust based on the distance
             y_curve += curve_strength * np.sin(np.pi * t)  # Bend right
     
     # Create a parabolic curve for the z-axis starting from z_start
@@ -1237,11 +1237,11 @@ else:
             if foot in ['Right Foot', 'Left Foot'] and distance > 5:
                 if foot == foottype:
                     # Closer to 35: start with a base strength and increase it
-                    curve_strength = 0.5 + (1 - (distance_to_35 / 10)) * 0.05  # Adjust based on the distance
+                    curve_strength = 0.5 + (1 - (distance / 10)) * 0.05  # Adjust based on the distance
                     y_curve -= curve_strength * np.sin(np.pi * t)  # Bend left
                 else:
                     # Closer to 45: start with a base strength and increase it
-                    curve_strength = 0.5 + (1 - (distance_to_45 / 10)) * 0.05  # Adjust based on the distance
+                    curve_strength = 0.5 + (1 - (distance / 10)) * 0.05  # Adjust based on the distance
                     y_curve += curve_strength * np.sin(np.pi * t)  # Bend right
             
             # Create a parabolic curve for the z-axis starting from z_start
