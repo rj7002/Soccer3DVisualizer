@@ -312,7 +312,7 @@ def create_3d_plot(df, event_dict, chosen_timestamp, displayed_event, voronoi,fi
     elif row['type'] == 'Shot':
         foot = row['shot_body_part_name'].iloc[0]
         if foot == 'Head':
-            zstart = 2.75
+            zstart = 2.25
         else:
             zstart = 0
         team = row['team_name'].iloc[0]
@@ -398,7 +398,7 @@ def shot_freeze_frame_3d(fig,shot_df, tag, keeper_cone=True):
     away_color = 'blue'
     foot = shot['shot_body_part']
     if foot == 'Head':
-            zstart = 2.75
+            zstart = 2.25
     else:
         zstart = 0
     team = shot['team']
@@ -1261,7 +1261,7 @@ else:
             shotoutcome = outcome[i]
             team = teams[i]
             if foot == 'Head':
-                zstart = 2.75
+                zstart = 2.25
             else:
                 zstart = 0
             if menu_team == team_2:
