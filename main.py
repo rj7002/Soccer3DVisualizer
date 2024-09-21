@@ -706,7 +706,7 @@ def draw_goals(fig,loc):
         ))
         x += 1/4
     x2 = 120
-    while x <= 124:
+    while x2 <= 124:
         fig.add_trace(go.Scatter3d(
             x=[x2, x2],
             y=[y_min, y_max],
