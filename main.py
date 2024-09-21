@@ -420,7 +420,7 @@ def shot_freeze_frame_3d(fig,shot_df, tag, keeper_cone=True):
             ))
 
     # Add the shot location
-        color = home_color if shot['team'] == team_1 else away_color
+        color = home_color if shot['team'] == team_2 else away_color
         fig.add_trace(go.Scatter3d(
             x=[pitch_width-shot['location'][0]],
             y=[shot['location'][1]],
