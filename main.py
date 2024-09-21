@@ -521,13 +521,13 @@ def shot_freeze_frame_3d(fig,shot_df, tag, keeper_cone=True):
 def draw_goals(fig,loc):
     if loc == 'home':
         x1 = 0
-        x2 = -5
+        x2 = -4
     else:
         x1 = 120
-        x2 = 125
+        x2 = 124
     fig.add_trace(go.Scatter3d(
     x=[x1, x2],
-    y=[45, 45],
+    y=[44, 44],
     z=[0, 0],
     mode='lines',
     line=dict(color='white', width=5),
@@ -536,7 +536,7 @@ def draw_goals(fig,loc):
 
     fig.add_trace(go.Scatter3d(
         x=[x1, x2],
-        y=[35, 35],
+        y=[36, 36],
         z=[0, 0],
         mode='lines',
         line=dict(color='white', width=5),
@@ -545,7 +545,7 @@ def draw_goals(fig,loc):
 
     fig.add_trace(go.Scatter3d(
         x=[x2, x2],
-        y=[35, 45],
+        y=[36, 44],
         z=[0, 0],
         mode='lines',
         line=dict(color='white', width=5),
@@ -554,8 +554,8 @@ def draw_goals(fig,loc):
 
     fig.add_trace(go.Scatter3d(
         x=[x1, x1],
-        y=[35, 45],
-        z=[4, 4],
+        y=[36, 44],
+        z=[3, 3],
         mode='lines',
         line=dict(color='white', width=5),
         hoverinfo='none',
@@ -563,8 +563,8 @@ def draw_goals(fig,loc):
 
     fig.add_trace(go.Scatter3d(
         x=[x1, x1],
-        y=[35, 35],
-        z=[0, 4],
+        y=[36, 36],
+        z=[0, 3],
         mode='lines',
         line=dict(color='white', width=5),
         hoverinfo='none',
@@ -572,8 +572,8 @@ def draw_goals(fig,loc):
 
     fig.add_trace(go.Scatter3d(
         x=[x1, x1],
-        y=[45, 45],
-        z=[0, 4],
+        y=[44, 44],
+        z=[0, 3],
         mode='lines',
         line=dict(color='white', width=5),
         hoverinfo='none',
@@ -581,11 +581,11 @@ def draw_goals(fig,loc):
 
     # Adding the net grid
     # Horizontal lines for the net on the top
-    for i in range(0, 16):
+    for i in range(0, 13):
         z_value = i / 4
         fig.add_trace(go.Scatter3d(
             x=[x2, x1],
-            y=[45, 45],
+            y=[44, 44],
             z=[z_value, z_value],
             mode='lines',
             line=dict(color='white', width=2),
@@ -594,33 +594,33 @@ def draw_goals(fig,loc):
 
     # Vertical lines for the net on the top
     if loc == 'home':
-        for i in range(0, 20):
+        for i in range(0, 16):
             x_value = x2 + i/4
             fig.add_trace(go.Scatter3d(
                 x=[x_value, x_value],
-                y=[45, 45],
-                z=[0, 4],
+                y=[44, 44],
+                z=[0, 3],
                 mode='lines',
                 line=dict(color='white', width=2),
                 hoverinfo='none',
             ))
     else:
-        for i in range(0, 20):
+        for i in range(0, 16):
             x_value = x2 - i/4
             fig.add_trace(go.Scatter3d(
                 x=[x_value, x_value],
-                y=[45, 45],
-                z=[0, 4],
+                y=[44, 44],
+                z=[0, 3],
                 mode='lines',
                 line=dict(color='white', width=2),
                 hoverinfo='none',
             ))
         # Horizontal lines for the net on the top
-    for i in range(0, 16):
+    for i in range(0, 13):
         z_value = i / 4
         fig.add_trace(go.Scatter3d(
             x=[x2, x1],
-            y=[35, 35],
+            y=[36, 36],
             z=[z_value, z_value],
             mode='lines',
             line=dict(color='white', width=2),
@@ -629,13 +629,13 @@ def draw_goals(fig,loc):
 
     # Vertical lines for the net on the top
     
-    for i in range(0, 20):
+    for i in range(0, 16):
         if loc == 'home':
             x_value = x2 + i/4
             fig.add_trace(go.Scatter3d(
                 x=[x_value, x_value],
-                y=[35, 35],
-                z=[0, 4],
+                y=[36, 36],
+                z=[0, 3],
                 mode='lines',
                 line=dict(color='white', width=2),
                 hoverinfo='none',
@@ -644,19 +644,19 @@ def draw_goals(fig,loc):
             x_value = x2 - i/4
             fig.add_trace(go.Scatter3d(
                 x=[x_value, x_value],
-                y=[35, 35],
-                z=[0, 4],
+                y=[36, 36],
+                z=[0, 3],
                 mode='lines',
                 line=dict(color='white', width=2),
                 hoverinfo='none',
             ))
 
     # Horizontal lines for the net on the back
-    for i in range(0, 16):
+    for i in range(0, 13):
         z_value = i / 4
         fig.add_trace(go.Scatter3d(
             x=[x2, x2],
-            y=[35, 45],
+            y=[36, 44],
             z=[z_value, z_value],
             mode='lines',
             line=dict(color='white', width=2),
@@ -664,19 +664,19 @@ def draw_goals(fig,loc):
         ))
 
     # Vertical lines for the net on the back
-    for i in range(0, 40):
-        y_value = 35 + i/4
+    for i in range(0, 32):
+        y_value = 36 + i/4
         fig.add_trace(go.Scatter3d(
             x=[x2, x2],
             y=[y_value, y_value],
-            z=[0, 4],
+            z=[0, 3],
             mode='lines',
             line=dict(color='white', width=2),
             hoverinfo='none',
         ))
     
-    y_min, y_max = 35, 45
-    z_value = 4
+    y_min, y_max = 36, 44
+    z_value = 3
     step = 1/4  # Step size for spacing between lines
 
     # Initialize the figure
@@ -694,8 +694,8 @@ def draw_goals(fig,loc):
         ))
         y += step
 
-    # Vertical lines (using integers for simplicity here)
-    for x in range(x2, x1):  # Adjust x-range as needed
+    x = -4
+    while x <= 0:
         fig.add_trace(go.Scatter3d(
             x=[x, x],
             y=[y_min, y_max],
@@ -704,6 +704,18 @@ def draw_goals(fig,loc):
             line=dict(color='white', width=2),
             hoverinfo='none',
         ))
+        x += 1/4
+    x2 = 120
+    while x <= 124:
+        fig.add_trace(go.Scatter3d(
+            x=[x2, x2],
+            y=[y_min, y_max],
+            z=[z_value, z_value],
+            mode='lines',
+            line=dict(color='white', width=2),
+            hoverinfo='none',
+        ))
+        x2 += 1/4
 def calculate_distance(x1, y1, x2, y2):
     """Calculate the distance between two points (x1, y1) and (x2, y2)."""
     return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
