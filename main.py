@@ -365,8 +365,7 @@ def generate_smooth_curve(x_start, x_end, y_start, y_end, z_start, z_end, foot, 
     y_curve = (1 - t) * y_start + t * y_end
     
     # Determine the distance from 35 and 45
-    distance_to_35 = abs(y_end - 35)
-    distance_to_45 = abs(y_end - 45)
+    distance = np.sqrt((x_end - x_start) ** 2 + (y_end - y_start) ** 2)
     
     # Determine the foot type based on the team
     if team == team_1:
@@ -375,7 +374,7 @@ def generate_smooth_curve(x_start, x_end, y_start, y_end, z_start, z_end, foot, 
         foottype = 'Left Foot'
     
     # Calculate curve strength based on proximity to 35 or 45
-    if foot in ['Right Foot', 'Left Foot']:
+    if foot in ['Right Foot', 'Left Foot'] and distance >= 6:
         if foot == foottype:
             # Closer to 35: start with a base strength and increase it
             curve_strength = 0.5 + (1 - (distance_to_35 / 10)) * 0.05  # Adjust based on the distance
