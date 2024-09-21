@@ -373,7 +373,7 @@ def generate_smooth_curve(x_start, x_end, y_start, y_end, z_start, z_end, foot, 
         foottype = 'Left Foot'
     
     # Calculate curve strength based on proximity to 35 or 45
-    if foot in ['Right Foot', 'Left Foot'] and distance > 5:
+    if foot in ['Right Foot', 'Left Foot'] and distance > 6:
         if foot == foottype:
             # Closer to 35: start with a base strength and increase it
             curve_strength = 0.5 + (1 - (distance / 10)) * 0.05  # Adjust based on the distance
@@ -739,7 +739,7 @@ def generate_smooth_curve(x_start, x_end, y_start, y_end, z_start, z_end, foot, 
         foottype = 'Left Foot'
     
     # Calculate curve strength based on proximity to 35 or 45
-    if foot in ['Right Foot', 'Left Foot'] and distance > 5:
+    if foot in ['Right Foot', 'Left Foot'] and distance > 6:
         if foot == foottype:
             # Closer to 35: start with a base strength and increase it
             curve_strength = 0.5 + (1 - (distance / 10)) * 0.05  # Adjust based on the distance
@@ -1234,7 +1234,7 @@ else:
                 foottype = 'Left Foot'
             
             # Calculate curve strength based on proximity to 35 or 45
-            if foot in ['Right Foot', 'Left Foot'] and distance > 5:
+            if foot in ['Right Foot', 'Left Foot'] and distance > 6:
                 if foot == foottype:
                     # Closer to 35: start with a base strength and increase it
                     curve_strength = 0.5 + (1 - (distance / 10)) * 0.05  # Adjust based on the distance
