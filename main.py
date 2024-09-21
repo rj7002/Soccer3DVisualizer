@@ -1158,7 +1158,6 @@ else:
     def shot_map_3d(fig):
         # Filter the dataframe for shots by the selected player
         df_shot = df.loc[(df['player_name'].isin(menu_player)) & (df['type_name'] == 'Shot')]
-        st.write(df_shot)
         # st.write(df_shot)
         location = df_shot['location'].tolist()
         shotend = df_shot['shot_end_location'].tolist()
@@ -1253,7 +1252,6 @@ else:
                 zstart = 2.75
             else:
                 zstart = 0
-            st.write(team)
             if menu_team == team_2:
                 if z2[i] > 0:  # Only create curves for shots where z2 is greater than 0
                     x_curve, y_curve, z_curve = generate_smooth_curve(x1[i], x2[i], 80-y1[i], 80-y2[i], zstart,z2[i],foot,team)
