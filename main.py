@@ -1370,6 +1370,7 @@ else:
 
 
     typeplot = st.sidebar.selectbox('Select a plot',['Pass Map','Receipt Map','Pressure Map','Carry Map','Shot Map'])
+    fig2 = None  
     if typeplot == 'Pass Map':
         pass_map_3d(fig)
         df_pass = df.loc[(df['player_name'].isin(menu_player)) & (df['type_name'] == 'Pass')]
