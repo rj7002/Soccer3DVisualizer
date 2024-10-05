@@ -1604,7 +1604,8 @@ else:
 
     st.plotly_chart(fig,use_container_width=True)
     col1,col2 = st.columns(2)
-    with col1:
-        st.plotly_chart(fig2)
-    with col2:
-        st.plotly_chart(fig3)
+    if fig2 != None:
+        with col1:
+            st.plotly_chart(fig2)
+        with col2:
+            st.plotly_chart(fig3)
