@@ -1151,29 +1151,28 @@ else:
             x = pitch_width - x
             y = y
 
-        # # Add pressure points as markers in 3D
-        # fig.add_trace(go.Scatter3d(
-        #     x=x,
-        #     y=y,
-        #     z=np.zeros_like(x),  # Assuming all pressure points are at the same z-coordinate
-        #     mode='markers',
-        #     marker=dict(color=color, size=12, symbol='circle', opacity=0.5),
-        #     name='Pressure Points',
-        #     hoverinfo='text',
-        #     hovertext = [f'{players[i]}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}']
-        # ))
+        # Add pressure points as markers in 3D
+        fig.add_trace(go.Scatter3d(
+            x=x,
+            y=y,
+            z=np.zeros_like(x),  # Assuming all pressure points are at the same z-coordinate
+            mode='markers',
+            marker=dict(color=color, size=12, symbol='circle', opacity=0.5),
+            name='Pressure Points',
+            hoverinfo='text',
+        ))
 
-        for i in range(len(x)):
-            fig.add_trace(go.Scatter3d(
-                x=x[i],
-                y=y[i],
-                z=[0],  # Assuming carries occur at the same z-coordinate
-                mode='markers',
-                marker=dict(color=color, size=12, symbol='circle', opacity=0.5),
-                name='Pressure Points',
-                hoverinfo='text',
-                hovertext = [f'{players[i]}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}']
-            ))
+        # for i in range(len(x)):
+        #     fig.add_trace(go.Scatter3d(
+        #         x=x[i],
+        #         y=y[i],
+        #         z=[0],  # Assuming carries occur at the same z-coordinate
+        #         mode='markers',
+        #         marker=dict(color=color, size=12, symbol='circle', opacity=0.5),
+        #         name='Pressure Points',
+        #         hoverinfo='text',
+        #         hovertext = [f'{players[i]}<br>Half: {periods[i]}<br>Time: {minutes[i]}:{seconds[i]:02}']
+        #     ))
 
     def shot_map_3d(fig):
         # Filter the dataframe for shots by the selected player
