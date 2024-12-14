@@ -43,6 +43,13 @@ def create_pitch_3d():
                                z=[0]*7,
                                mode='lines',
                                line=dict(color='white', width=4 * scale_factor), hoverinfo='none'))
+    fig.add_trace(go.Mesh3d(
+    x=[0, pitch_length, pitch_length, 0],  # Corner points of the field
+    y=[0, 0, pitch_width, pitch_width],   # Corner points of the field
+    z=[0, 0, 0, 0],  # All points are at ground level
+    color='green',    # Set the color to green
+    # opacity=0.5       # Set transparency for a better visual effect
+    ))
     
     # Left Penalty Area
     fig.add_trace(go.Scatter3d(x=[16.5 * scale_factor, 16.5 * scale_factor, 0, 16.5 * scale_factor], 
