@@ -44,9 +44,9 @@ def create_pitch_3d():
                                mode='lines',
                                line=dict(color='white', width=4 * scale_factor), hoverinfo='none'))
     fig.add_trace(go.Mesh3d(
-    x=[0, pitch_length+10, pitch_length+10, 0],  # Corner points of the field
+    x=[-10, pitch_length+10, pitch_length+10, -10],  # Corner points of the field
     y=[0, 0, pitch_width, pitch_width],   # Corner points of the field
-    z=[0, 0, 0, 0],  # All points are at ground level
+    z=[-2, -2, -2, -2],  # All points are at ground level
     color='green',    # Set the color to green
     hoverinfo='none'  # Disable hover information
     ))
