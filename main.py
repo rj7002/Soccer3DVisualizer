@@ -25,7 +25,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 st.sidebar.write('View multiple 3D maps such as shot maps, passing maps, receiving maps, pressure maps with data from Statsbomb.')
-st.sidebar.image('https://mma.prnewswire.com/media/881169/Statsbomb_Logo.jpg?p=twitter',width=100)
+st.sidebar.image('https://mma.prnewswire.com/media/881169/Statsbomb_Logo.jpg?p=twitter',width=200)
 
 def create_pitch_3d():
     # Create figure
