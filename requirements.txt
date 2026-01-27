@@ -6,3 +6,4 @@ numpy
 requests
 matplotlib
 scipy
+altair==4.2.2
