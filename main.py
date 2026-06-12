@@ -44,42 +44,54 @@ def create_pitch_3d():
                                z=[0]*7,
                                mode='lines',
                                line=dict(color='white', width=4 * scale_factor), hoverinfo='none'))
+    # Dark surround (stadium area outside pitch)
     fig.add_trace(go.Mesh3d(
-    x=[-10, pitch_length+10, pitch_length+10, -10],  # Corner points of the field
-    y=[0, 0, pitch_width, pitch_width],   # Corner points of the field
-    z=[-.25, -.25, -.25, -.25],  # All points are at ground level
-    color='green',    # Set the color to green
-    hoverinfo='none'  # Disable hover information
+        x=[-20, pitch_length+20, pitch_length+20, -20],
+        y=[-20, -20, pitch_width+20, pitch_width+20],
+        z=[-.5, -.5, -.5, -.5],
+        color='#0a1a0a',
+        hoverinfo='none'
     ))
-    # Left Penalty Area
-    fig.add_trace(go.Scatter3d(x=[16.5 * scale_factor, 16.5 * scale_factor, 0, 16.5 * scale_factor], 
-                               y=[60 * scale_factor, 20 * scale_factor, 20 * scale_factor, 20 * scale_factor],
+
+    # Alternating grass stripes for realism
+    stripe_colors = ['#2d7a27', '#357d2e']
+    num_stripes = 10
+    stripe_w = pitch_length / num_stripes
+    for i in range(num_stripes):
+        x0 = i * stripe_w
+        x1s = (i + 1) * stripe_w
+        fig.add_trace(go.Mesh3d(
+            x=[x0, x1s, x1s, x0],
+            y=[0, 0, pitch_width, pitch_width],
+            z=[-.1, -.1, -.1, -.1],
+            color=stripe_colors[i % 2],
+            hoverinfo='none',
+            lighting=dict(ambient=0.8, diffuse=0.5)
+        ))
+    # Left Penalty Area (18 yards deep, y=18 to y=62)
+    fig.add_trace(go.Scatter3d(x=[0, 18 * scale_factor, 18 * scale_factor, 0],
+                               y=[18 * scale_factor, 18 * scale_factor, 62 * scale_factor, 62 * scale_factor],
                                z=[0, 0, 0, 0],
                                mode='lines',
                                line=dict(color='white', width=4 * scale_factor), hoverinfo='none'))
-    fig.add_trace(go.Scatter3d(x=[16.5 * scale_factor, 0], 
-                               y=[60 * scale_factor, 60 * scale_factor],
-                               z=[0, 0],
-                               mode='lines',
-                               line=dict(color='white', width=4 * scale_factor), hoverinfo='none'))
-    
+
     # Right Penalty Area
-    fig.add_trace(go.Scatter3d(x=[pitch_length, (120 - 16.5) * scale_factor, (120 - 16.5) * scale_factor, pitch_length], 
-                               y=[60 * scale_factor, 60 * scale_factor, 20 * scale_factor, 20 * scale_factor],
+    fig.add_trace(go.Scatter3d(x=[pitch_length, 102 * scale_factor, 102 * scale_factor, pitch_length],
+                               y=[18 * scale_factor, 18 * scale_factor, 62 * scale_factor, 62 * scale_factor],
                                z=[0, 0, 0, 0],
                                mode='lines',
                                line=dict(color='white', width=4 * scale_factor), hoverinfo='none'))
-    
-    # Left 6-yard Box
-    fig.add_trace(go.Scatter3d(x=[0, 5.5 * scale_factor, 5.5 * scale_factor, 0.5 * scale_factor, 0], 
-                               y=[49 * scale_factor, 49 * scale_factor, 31 * scale_factor, 31 * scale_factor, 49 * scale_factor],
-                               z=[0, 0, 0, 0, 0],
+
+    # Left 6-yard Box (6 yards deep, y=30 to y=50)
+    fig.add_trace(go.Scatter3d(x=[0, 6 * scale_factor, 6 * scale_factor, 0],
+                               y=[30 * scale_factor, 30 * scale_factor, 50 * scale_factor, 50 * scale_factor],
+                               z=[0, 0, 0, 0],
                                mode='lines',
                                line=dict(color='white', width=4 * scale_factor), hoverinfo='none'))
-    
+
     # Right 6-yard Box
-    fig.add_trace(go.Scatter3d(x=[pitch_length, (120 - 5.5) * scale_factor, (120 - 5.5) * scale_factor, pitch_length], 
-                               y=[49 * scale_factor, 49 * scale_factor, 31 * scale_factor, 31 * scale_factor],
+    fig.add_trace(go.Scatter3d(x=[pitch_length, 114 * scale_factor, 114 * scale_factor, pitch_length],
+                               y=[30 * scale_factor, 30 * scale_factor, 50 * scale_factor, 50 * scale_factor],
                                z=[0, 0, 0, 0],
                                mode='lines',
                                line=dict(color='white', width=4 * scale_factor), hoverinfo='none'))
@@ -92,10 +104,10 @@ def create_pitch_3d():
         z = z_center * np.ones_like(x)
         fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='lines', name=name, line=dict(color='white', width=4 * scale_factor), hoverinfo='none'))
 
-    add_circle(pitch_length / 2, pitch_width / 2, 0, 9.15 * scale_factor, 'Centre Circle')
+    add_circle(pitch_length / 2, pitch_width / 2, 0, 10 * scale_factor, 'Centre Circle')
     add_circle(pitch_length / 2, pitch_width / 2, 0, 0.8 * scale_factor, 'Centre Spot')
-    add_circle(11 * scale_factor, (pitch_width / 2), 0, 0.8 * scale_factor, 'Left Penalty Spot')
-    add_circle((120 - 11) * scale_factor, (pitch_width / 2), 0, 0.8 * scale_factor, 'Right Penalty Spot')
+    add_circle(12 * scale_factor, (pitch_width / 2), 0, 0.8 * scale_factor, 'Left Penalty Spot')
+    add_circle(108 * scale_factor, (pitch_width / 2), 0, 0.8 * scale_factor, 'Right Penalty Spot')
 
     # Draw Arcs
     def add_arc(x_center, y_center, z_center, radius, theta1, theta2, name):
@@ -120,9 +132,12 @@ def create_pitch_3d():
 
 
 
-        # Example arcs (you can uncomment and adjust as needed)
-    add_arc2(11 * scale_factor, (pitch_width / 2), 0, 18.3 / 2 * scale_factor, 234, 126, 'Left Arc')
-    add_arc((120 - 11) * scale_factor, (pitch_width / 2), 0, 18.3 / 2 * scale_factor, 128, 232, 'Right Arc')
+    # Penalty arcs: radius 10 yards, only the portion outside the penalty area
+    # Left arc: center at penalty spot (12, 40), show where x > 18 → angles ~127° to ~233°
+    add_arc2(12 * scale_factor, (pitch_width / 2), 0, 10 * scale_factor, 233, 127, 'Left Arc')
+    # Right arc: center at penalty spot (108, 40), show where x < 102 → angles ~127° to ~233°
+    add_arc(108 * scale_factor, (pitch_width / 2), 0, 10 * scale_factor, 127, 233, 'Right Arc')
+
     def add_arc3(x_center, y_center, z_center, radius, angle_start, angle_end, name):
         theta = np.linspace(np.deg2rad(angle_start), np.deg2rad(angle_end), 100)
         x = x_center + radius * np.cos(theta)
@@ -130,53 +145,56 @@ def create_pitch_3d():
         z = z_center * np.ones_like(x)
         fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='lines', name=name, line=dict(color='white', width=4 * scale_factor), hoverinfo='none'))
 
-    arc_radius = 4 * scale_factor
-    # Bottom-left corner
-    add_arc3(arc_radius, arc_radius, 0, arc_radius, 180, 270, 'Bottom-left Arc')
-    # Bottom-right corner
-    add_arc3(pitch_length - arc_radius, arc_radius, 0, arc_radius, 270, 360, 'Bottom-right Arc')
-    # Top-left corner
-    add_arc3(arc_radius, pitch_width - arc_radius, 0, arc_radius, 90, 180, 'Top-left Arc')
-    # Top-right corner
-    add_arc3(pitch_length - arc_radius, pitch_width - arc_radius, 0, arc_radius, 0, 90, 'Top-right Arc')
+    # Corner arcs: radius 1 yard, centered at each corner, curving into the field
+    add_arc3(0, 0, 0, 1 * scale_factor, 0, 90, 'Bottom-left Arc')
+    add_arc3(pitch_length, 0, 0, 1 * scale_factor, 90, 180, 'Bottom-right Arc')
+    add_arc3(0, pitch_width, 0, 1 * scale_factor, 270, 360, 'Top-left Arc')
+    add_arc3(pitch_length, pitch_width, 0, 1 * scale_factor, 180, 270, 'Top-right Arc')
 
         # Set axis
-    fig.update_layout(scene=dict(
-        xaxis=dict(
-            range=[-5, pitch_length+5],
-            title='',
-            showgrid=False,        # Turn off grid
-            showline=False,        # Turn off axis line
-            showticklabels=False,  # Turn off tick labels
-            zeroline=False,        # Turn off the zero line
+    fig.update_layout(
+        paper_bgcolor='#060d06',
+        plot_bgcolor='#060d06',
+        scene=dict(
+            xaxis=dict(
+                range=[-15, pitch_length+15],
+                title='',
+                showgrid=False,
+                showline=False,
+                showticklabels=False,
+                zeroline=False,
+                showbackground=True,
+                backgroundcolor='#060d06',
+            ),
+            yaxis=dict(
+                range=[-15, pitch_width+15],
+                title='',
+                showgrid=False,
+                showline=False,
+                showticklabels=False,
+                zeroline=False,
+                showbackground=True,
+                backgroundcolor='#060d06',
+            ),
+            zaxis=dict(
+                title='',
+                showgrid=False,
+                showline=False,
+                showticklabels=False,
+                zeroline=False,
+                showbackground=True,
+                backgroundcolor='#060d06',
+            ),
+            bgcolor='#060d06',
         ),
-        yaxis=dict(
-            range=[-5, pitch_width+5],
-            title='',
-            showgrid=False,        # Turn off grid
-            showline=False,        # Turn off axis line
-            showticklabels=False,  # Turn off tick labels
-            zeroline=False,        # Turn off the zero line
+        showlegend=False,
+        margin=dict(l=0, r=0, t=0, b=0),
+        scene_aspectmode="data",
+        height=800,
+        scene_camera=dict(
+            eye=dict(x=0, y=3, z=0.7)
         ),
-        zaxis=dict(
-            # range=[0, 1],
-            title='',
-            showgrid=False,        # Turn off grid
-            showline=False,        # Turn off axis line
-            showticklabels=False,  # Turn off tick labels
-            zeroline=False,        # Turn off the zero line
-            showbackground=False,   # Optionally keep the background
-            backgroundcolor='green'
-        ),
-        # aspectmode='data',
-        # aspectratio=dict(x=2, y=1.4, z=0.2),  # Adjust aspect ratio if needed
-    ), showlegend=False,
-     margin=dict(l=20, r=20, t=20, b=20),
-            scene_aspectmode="data",
-            height=800,
-            scene_camera=dict(
-                eye=dict(x=0, y=3, z=0.7)
-            ),)
+    )
     
     return fig
 
@@ -593,7 +611,7 @@ def draw_goals(fig,loc):
             y=[44, 44],
             z=[z_value, z_value],
             mode='lines',
-            line=dict(color='white', width=2),
+            line=dict(color='#cccccc', width=1),
             hoverinfo='none',
         ))
 
@@ -606,7 +624,7 @@ def draw_goals(fig,loc):
                 y=[44, 44],
                 z=[0, 3],
                 mode='lines',
-                line=dict(color='white', width=2),
+                line=dict(color='#bbbbbb', width=1),
                 hoverinfo='none',
             ))
     else:
@@ -617,7 +635,7 @@ def draw_goals(fig,loc):
                 y=[44, 44],
                 z=[0, 3],
                 mode='lines',
-                line=dict(color='white', width=2),
+                line=dict(color='#bbbbbb', width=1),
                 hoverinfo='none',
             ))
         # Horizontal lines for the net on the top
@@ -628,7 +646,7 @@ def draw_goals(fig,loc):
             y=[36, 36],
             z=[z_value, z_value],
             mode='lines',
-            line=dict(color='white', width=2),
+            line=dict(color='#bbbbbb', width=1),
             hoverinfo='none',
         ))
 
@@ -642,7 +660,7 @@ def draw_goals(fig,loc):
                 y=[36, 36],
                 z=[0, 3],
                 mode='lines',
-                line=dict(color='white', width=2),
+                line=dict(color='#bbbbbb', width=1),
                 hoverinfo='none',
             ))
         else:
@@ -652,7 +670,7 @@ def draw_goals(fig,loc):
                 y=[36, 36],
                 z=[0, 3],
                 mode='lines',
-                line=dict(color='white', width=2),
+                line=dict(color='#bbbbbb', width=1),
                 hoverinfo='none',
             ))
 
@@ -664,7 +682,7 @@ def draw_goals(fig,loc):
             y=[36, 44],
             z=[z_value, z_value],
             mode='lines',
-            line=dict(color='white', width=2),
+            line=dict(color='#bbbbbb', width=1),
             hoverinfo='none',
         ))
 
@@ -676,7 +694,7 @@ def draw_goals(fig,loc):
             y=[y_value, y_value],
             z=[0, 3],
             mode='lines',
-            line=dict(color='white', width=2),
+            line=dict(color='#bbbbbb', width=1),
             hoverinfo='none',
         ))
     
@@ -694,7 +712,7 @@ def draw_goals(fig,loc):
             y=[y, y],
             z=[z_value, z_value],
             mode='lines',
-            line=dict(color='white', width=2),
+            line=dict(color='#bbbbbb', width=1),
             hoverinfo='none',
         ))
         y += step
@@ -706,7 +724,7 @@ def draw_goals(fig,loc):
             y=[y_min, y_max],
             z=[z_value, z_value],
             mode='lines',
-            line=dict(color='white', width=2),
+            line=dict(color='#bbbbbb', width=1),
             hoverinfo='none',
         ))
         x += 1/4
@@ -717,7 +735,7 @@ def draw_goals(fig,loc):
             y=[y_min, y_max],
             z=[z_value, z_value],
             mode='lines',
-            line=dict(color='white', width=2),
+            line=dict(color='#bbbbbb', width=1),
             hoverinfo='none',
         ))
         x2 += 1/4
