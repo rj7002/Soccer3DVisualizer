@@ -784,7 +784,28 @@ def create_timestring(row):
     return minute_component + ':' + second_component
 pitch_width = 120
 pitch_height = 80
-comps = sb.competitions()
+
+@st.cache_data
+def load_competitions():
+    return sb.competitions()
+
+@st.cache_data
+def load_matches(compid, seasonid):
+    return sb.matches(competition_id=compid, season_id=seasonid)
+
+@st.cache_data
+def load_events(gameid):
+    return requests.get(f'https://raw.githubusercontent.com/statsbomb/open-data/master/data/events/{gameid}.json').json()
+
+@st.cache_data
+def load_sb_events(gameid):
+    return sb.events(match_id=gameid)
+
+@st.cache_data
+def load_frames(gameid):
+    return sb.frames(match_id=gameid, fmt='dataframe')
+
+comps = load_competitions()
 compets = []
 for index, row in comps.iterrows():
     compets.append(row['competition_name'] + ' - ' + row['season_name'] + ' - ' + str(row['competition_id'])+ ' - ' + str(row['season_id']))
@@ -793,9 +814,8 @@ parts = competition.split(' - ')
 comp = parts[0]
 compid = parts[-2]
 seasonid = parts[-1]
-matches = sb.matches(competition_id=compid,season_id=seasonid)
+matches = load_matches(compid, seasonid)
 matchs = []
-# st.write(matches)
 for index, row in matches.iterrows():
     game = row['home_team'] + ' vs ' + row['away_team']
     matchs.append(game + ' - ' + row['competition_stage'] + ' - ' + str(row['match_id']))
@@ -804,16 +824,15 @@ matchparts = matchesselect.split(' - ')
 gameid = matchparts[-1]
 stage = matchparts[-2]
 game2 = matchparts[0]
-# gameid = 3775635
 url = f'https://raw.githubusercontent.com/statsbomb/open-data/master/data/events/{gameid}.json'
 hide = st.sidebar.checkbox('Hide Goal Posts')
 
 trythreesixty = st.sidebar.checkbox('Check for 360 Data')
 if trythreesixty:
     try:
-        frame_df = sb.frames(match_id=gameid, fmt='dataframe')
+        frame_df = load_frames(gameid)
         frame_df = frame_df.rename(columns={'location': 'player_location'})
-        event_df = sb.events(match_id=gameid)
+        event_df = load_sb_events(gameid)
         event_df['timestring'] = event_df.apply(create_timestring, axis=1)
 
         dfframe = pd.merge(frame_df, event_df, on='id', how='right')
@@ -832,19 +851,7 @@ if trythreesixty:
         st.error(f"An unexpected error occurred: {e}")
 
 
-# Send an HTTP GET request to the URL
-response = requests.get(url)
-
-# Check if the request was successful (status code 200)
-if response.status_code == 200:
-    # Parse the JSON data from the response
-    game = response.json()
-    
-    # Print the JSON data
-    # print(json_data)
-else:
-    # Print an error message if the request failed
-    st.error(f"Failed to retrieve data. Status code: {response.status_code}")
+game = load_events(gameid)
 df = pd.json_normalize(game, sep='_')
 location = df['location'].tolist()
 x1 = np.array([el[0] if isinstance(el, (list, tuple)) else el for el in location])
@@ -1394,72 +1401,372 @@ else:
 
 
 
-    typeplot = st.sidebar.selectbox('Select a plot',['Pass Map','Receipt Map','Pressure Map','Carry Map','Shot Map'])
-    fig2 = None  
+    # ── helper: shared dark chart theme ──────────────────────────────────────
+    DARK_BASE = dict(paper_bgcolor='#111', plot_bgcolor='#1a1a1a', font=dict(color='white'))
+    DARK = dict(**DARK_BASE, xaxis=dict(gridcolor='#333'), yaxis=dict(gridcolor='#333'))
+
+    def _draw_2d_pitch(fig2d):
+        """Adds a simple top-down 2-D pitch outline to a go.Figure."""
+        pl, pw = 120, 80
+        def _line(xs, ys):
+            fig2d.add_trace(go.Scatter(x=xs, y=ys, mode='lines',
+                line=dict(color='white', width=1.5), hoverinfo='none', showlegend=False))
+        _line([0,0,pl,pl,0], [0,pw,pw,0,0])          # outline
+        _line([pl/2,pl/2], [0,pw])                    # centre line
+        _line([0,18,18,0], [18,18,62,62])             # left box
+        _line([pl,102,102,pl], [18,18,62,62])         # right box
+        _line([0,6,6,0], [30,30,50,50])               # left 6yd
+        _line([pl,114,114,pl], [30,30,50,50])         # right 6yd
+        theta = np.linspace(0, 2*np.pi, 100)
+        fig2d.add_trace(go.Scatter(                   # centre circle
+            x=pl/2 + 10*np.cos(theta), y=pw/2 + 10*np.sin(theta),
+            mode='lines', line=dict(color='white', width=1.5),
+            hoverinfo='none', showlegend=False))
+        fig2d.update_layout(
+            xaxis=dict(range=[-5,125], showgrid=False, zeroline=False, showticklabels=False),
+            yaxis=dict(range=[-5,85], showgrid=False, zeroline=False, showticklabels=False,
+                       scaleanchor='x', scaleratio=1),
+            **DARK_BASE)
+
+    # ── Pass Map supporting charts ────────────────────────────────────────────
+    def pass_support_charts(df_pass):
+        color = 'red' if menu_team == team_1 else 'blue'
+
+        # 1. 2-D passing network
+        net_passes = df[(df['team_name'] == menu_team) & (df['type_name'] == 'Pass') &
+                        (df['pass_recipient_name'].notna())].copy()
+        avg_pos = {}
+        for player, grp in net_passes.groupby('player_name'):
+            locs = [l for l in grp['location'].dropna() if isinstance(l, (list,tuple)) and len(l)>=2]
+            if locs:
+                avg_pos[player] = (np.mean([l[0] for l in locs]), np.mean([l[1] for l in locs]))
+        for player, grp in net_passes.groupby('pass_recipient_name'):
+            locs = [l for l in grp['pass_end_location'].dropna() if isinstance(l,(list,tuple)) and len(l)>=2]
+            if locs and player not in avg_pos:
+                avg_pos[player] = (np.mean([l[0] for l in locs]), np.mean([l[1] for l in locs]))
+
+        pair_counts = net_passes.groupby(['player_name','pass_recipient_name']).size().reset_index(name='n')
+        max_n = pair_counts['n'].max() if len(pair_counts) else 1
+
+        net_fig = go.Figure()
+        _draw_2d_pitch(net_fig)
+        for _, row in pair_counts.iterrows():
+            p1, p2, n = row['player_name'], row['pass_recipient_name'], row['n']
+            if p1 not in avg_pos or p2 not in avg_pos: continue
+            net_fig.add_trace(go.Scatter(
+                x=[avg_pos[p1][0], avg_pos[p2][0]], y=[avg_pos[p1][1], avg_pos[p2][1]],
+                mode='lines', line=dict(color=color, width=1+6*(n/max_n)),
+                opacity=0.4+0.6*(n/max_n), hoverinfo='text',
+                hovertext=f'{p1} → {p2}: {n}', showlegend=False))
+        touch_counts = (net_passes['player_name'].value_counts() +
+                        net_passes['pass_recipient_name'].value_counts()).fillna(0)
+        for player, (px2, py2) in avg_pos.items():
+            t = touch_counts.get(player, 1)
+            net_fig.add_trace(go.Scatter(
+                x=[px2], y=[py2], mode='markers+text',
+                marker=dict(color=color, size=6+min(t/4,12), line=dict(color='white',width=1)),
+                text=[player.split()[-1]], textposition='top center',
+                textfont=dict(color='white', size=9),
+                hoverinfo='text', hovertext=f'{player} ({int(t)} touches)', showlegend=False))
+        net_fig.update_layout(title='2D Passing Network', height=500, **DARK)
+        net_fig.update_layout(
+            xaxis=dict(range=[-5,125], showgrid=False, zeroline=False, showticklabels=False),
+            yaxis=dict(range=[-5,85], showgrid=False, zeroline=False, showticklabels=False,
+                       scaleanchor='x', scaleratio=1))
+
+        # 2. Pass length histogram
+        bins = [0,5,10,15,20,25,30,35,40,45,50,60,70,80,100]
+        labels = ['0-5','5-10','10-15','15-20','20-25','25-30','30-35','35-40','40-45','45-50','50-60','60-70','70-80','80+']
+        df_pass = df_pass.copy()
+        df_pass['len_bin'] = pd.cut(df_pass['pass_length'], bins=bins, labels=labels, right=True)
+        freq_len = df_pass['len_bin'].value_counts().reindex(labels, fill_value=0).reset_index()
+        freq_len.columns = ['bin','n']
+        len_fig = px.bar(freq_len, x='bin', y='n', title='Pass Length Distribution',
+                         labels={'bin':'Length (yards)','n':'Passes'},
+                         color='n', color_continuous_scale='Blues')
+        len_fig.update_layout(**DARK)
+
+        # 3. Pass recipient pie
+        rec_freq = df_pass['pass_recipient_name'].value_counts().head(10).reset_index()
+        rec_freq.columns = ['player','n']
+        rec_fig = px.pie(rec_freq, names='player', values='n',
+                         title='Top Pass Recipients', hole=0.35)
+        rec_fig.update_layout(**DARK)
+
+        # 4. Pass outcome bar (complete vs incomplete)
+        outcome_freq = df[(df['team_name']==menu_team)&(df['type_name']=='Pass')]['pass_outcome_name'].fillna('Complete').value_counts().reset_index()
+        outcome_freq.columns = ['outcome','n']
+        out_fig = px.bar(outcome_freq, x='outcome', y='n', title='Pass Outcomes',
+                         color='n', color_continuous_scale='RdYlGn')
+        out_fig.update_layout(**DARK)
+
+        st.plotly_chart(net_fig, use_container_width=True)
+        c1, c2, c3 = st.columns(3)
+        with c1: st.plotly_chart(len_fig, use_container_width=True)
+        with c2: st.plotly_chart(rec_fig, use_container_width=True)
+        with c3: st.plotly_chart(out_fig, use_container_width=True)
+
+    # ── Receipt Map supporting charts ─────────────────────────────────────────
+    def receipt_support_charts():
+        df_rec = df[(df['player_name'].isin(menu_player)) & (df['type_name'] == 'Ball Receipt*')].copy()
+
+        # 1. Receipt zone heatmap (divide pitch into 6×5 grid)
+        locs = [l for l in df_rec['location'].dropna() if isinstance(l,(list,tuple)) and len(l)>=2]
+        if locs:
+            hx = [l[0] for l in locs]
+            hy = [l[1] for l in locs]
+            zone_fig = go.Figure(go.Histogram2d(
+                x=hx, y=hy, nbinsx=12, nbinsy=8,
+                colorscale='YlOrRd', showscale=True))
+            _draw_2d_pitch(zone_fig)
+            zone_fig.update_layout(title='Receipt Heat Map', height=450, **DARK)
+            zone_fig.update_layout(
+                xaxis=dict(range=[0,120], showgrid=False, zeroline=False, showticklabels=False),
+                yaxis=dict(range=[0,80], showgrid=False, zeroline=False, showticklabels=False))
+        else:
+            zone_fig = go.Figure()
+
+        # 2. Receipts by half
+        df_rec['half'] = df_rec['period'].map({1:'1st Half', 2:'2nd Half',
+                                                3:'ET 1st', 4:'ET 2nd'}).fillna('Other')
+        half_freq = df_rec['half'].value_counts().reset_index()
+        half_freq.columns = ['half','n']
+        half_fig = px.bar(half_freq, x='half', y='n', title='Receipts by Period',
+                          color='n', color_continuous_scale='Blues')
+        half_fig.update_layout(**DARK)
+
+        # 3. Receipts by minute (10-min buckets)
+        df_rec['min_bucket'] = (df_rec['minute'] // 10) * 10
+        bucket_freq = df_rec.groupby('min_bucket').size().reset_index(name='n')
+        bucket_fig = px.bar(bucket_freq, x='min_bucket', y='n',
+                            title='Receipts by Match Minute (10-min buckets)',
+                            labels={'min_bucket':'Minute','n':'Receipts'},
+                            color='n', color_continuous_scale='Greens')
+        bucket_fig.update_layout(**DARK)
+
+        c1, c2 = st.columns([2,1])
+        with c1: st.plotly_chart(zone_fig, use_container_width=True)
+        with c2:
+            st.plotly_chart(half_fig, use_container_width=True)
+            st.plotly_chart(bucket_fig, use_container_width=True)
+
+    # ── Carry Map supporting charts ───────────────────────────────────────────
+    def carry_support_charts():
+        df_carry = df[(df['player_name'].isin(menu_player)) & (df['type_name'] == 'Carry')].copy()
+
+        # compute carry distances and net direction
+        def carry_dist(row):
+            l, e = row['location'], row['carry_end_location']
+            if isinstance(l,(list,tuple)) and isinstance(e,(list,tuple)) and len(l)>=2 and len(e)>=2:
+                return np.sqrt((e[0]-l[0])**2+(e[1]-l[1])**2)
+            return np.nan
+        def carry_dx(row):
+            l, e = row['location'], row['carry_end_location']
+            if isinstance(l,(list,tuple)) and isinstance(e,(list,tuple)) and len(l)>=2 and len(e)>=2:
+                return e[0]-l[0]
+            return np.nan
+
+        df_carry['dist'] = df_carry.apply(carry_dist, axis=1)
+        df_carry['dx'] = df_carry.apply(carry_dx, axis=1)
+        df_carry['progressive'] = df_carry['dx'] > 5  # 5+ yards forward = progressive
+
+        # 1. Carry distance histogram
+        dist_fig = px.histogram(df_carry.dropna(subset=['dist']), x='dist', nbins=20,
+                                title='Carry Distance Distribution',
+                                labels={'dist':'Distance (yards)'},
+                                color_discrete_sequence=['#00bfff'])
+        dist_fig.update_layout(**DARK)
+
+        # 2. Progressive vs non-progressive donut
+        prog_counts = df_carry['progressive'].value_counts().rename(
+            index={True:'Progressive', False:'Non-Progressive'}).reset_index()
+        prog_counts.columns = ['type','n']
+        prog_fig = px.pie(prog_counts, names='type', values='n',
+                          title='Progressive Carries', hole=0.4,
+                          color_discrete_map={'Progressive':'#00e676','Non-Progressive':'#ff5252'})
+        prog_fig.update_layout(**DARK)
+
+        # 3. Carries by zone (which third of the pitch)
+        def zone(row):
+            l = row['location']
+            if not (isinstance(l,(list,tuple)) and len(l)>=2): return 'Unknown'
+            x = l[0]
+            if menu_team != team_1: x = 120 - x
+            if x < 40: return 'Defensive Third'
+            if x < 80: return 'Middle Third'
+            return 'Attacking Third'
+        df_carry['zone'] = df_carry.apply(zone, axis=1)
+        zone_freq = df_carry['zone'].value_counts().reindex(
+            ['Defensive Third','Middle Third','Attacking Third'], fill_value=0).reset_index()
+        zone_freq.columns = ['zone','n']
+        zone_fig = px.bar(zone_freq, x='zone', y='n', title='Carries by Pitch Third',
+                          color='n', color_continuous_scale='Oranges')
+        zone_fig.update_layout(**DARK)
+
+        # 4. Carry start heat map
+        locs = [r['location'] for _, r in df_carry.iterrows()
+                if isinstance(r['location'],(list,tuple)) and len(r['location'])>=2]
+        if locs:
+            heat_fig = go.Figure(go.Histogram2d(
+                x=[l[0] for l in locs], y=[l[1] for l in locs],
+                nbinsx=12, nbinsy=8, colorscale='YlOrRd'))
+            _draw_2d_pitch(heat_fig)
+            heat_fig.update_layout(title='Carry Start Locations', height=400, **DARK)
+            heat_fig.update_layout(
+                xaxis=dict(range=[0,120], showgrid=False, zeroline=False, showticklabels=False),
+                yaxis=dict(range=[0,80], showgrid=False, zeroline=False, showticklabels=False))
+        else:
+            heat_fig = go.Figure()
+
+        st.plotly_chart(heat_fig, use_container_width=True)
+        c1, c2, c3 = st.columns(3)
+        with c1: st.plotly_chart(dist_fig, use_container_width=True)
+        with c2: st.plotly_chart(prog_fig, use_container_width=True)
+        with c3: st.plotly_chart(zone_fig, use_container_width=True)
+
+    # ── Pressure Map supporting charts ────────────────────────────────────────
+    def pressure_support_charts():
+        df_press_team = df[(df['team_name'] == menu_team) & (df['type_name'] == 'Pressure')].copy()
+
+        # 1. Pressure heat map
+        locs = [r['location'] for _, r in df_press_team.iterrows()
+                if isinstance(r['location'],(list,tuple)) and len(r['location'])>=2]
+        if locs:
+            heat_fig = go.Figure(go.Histogram2d(
+                x=[l[0] for l in locs], y=[l[1] for l in locs],
+                nbinsx=12, nbinsy=8, colorscale='RdPu'))
+            _draw_2d_pitch(heat_fig)
+            heat_fig.update_layout(title=f'{menu_team} — Pressure Zones', height=420, **DARK)
+            heat_fig.update_layout(
+                xaxis=dict(range=[0,120], showgrid=False, zeroline=False, showticklabels=False),
+                yaxis=dict(range=[0,80], showgrid=False, zeroline=False, showticklabels=False))
+        else:
+            heat_fig = go.Figure()
+
+        # 2. Pressure by minute (10-min buckets)
+        df_press_team['min_bucket'] = (df_press_team['minute'] // 10) * 10
+        bucket_freq = df_press_team.groupby('min_bucket').size().reset_index(name='n')
+        bucket_fig = px.bar(bucket_freq, x='min_bucket', y='n',
+                            title='Pressure Events by Minute',
+                            labels={'min_bucket':'Minute','n':'Pressures'},
+                            color='n', color_continuous_scale='RdPu')
+        bucket_fig.update_layout(**DARK)
+
+        # 3. Top pressuring players (team-level)
+        top_pressurers = df_press_team['player_name'].value_counts().head(10).reset_index()
+        top_pressurers.columns = ['player','n']
+        player_fig = px.bar(top_pressurers, x='n', y='player', orientation='h',
+                            title='Most Pressures (Team)', labels={'n':'Count','player':''},
+                            color='n', color_continuous_scale='RdPu')
+        player_fig.update_layout(**DARK)
+
+        # 4. Pressure by pitch third
+        def zone(row):
+            l = row['location']
+            if not (isinstance(l,(list,tuple)) and len(l)>=2): return 'Unknown'
+            x = l[0]
+            if menu_team != team_1: x = 120 - x
+            if x < 40: return 'Defensive Third'
+            if x < 80: return 'Middle Third'
+            return 'Attacking Third'
+        df_press_team['zone'] = df_press_team.apply(zone, axis=1)
+        zone_freq = df_press_team['zone'].value_counts().reindex(
+            ['Defensive Third','Middle Third','Attacking Third'], fill_value=0).reset_index()
+        zone_freq.columns = ['zone','n']
+        zone_fig = px.bar(zone_freq, x='zone', y='n', title='Pressure by Pitch Third',
+                          color='n', color_continuous_scale='Reds')
+        zone_fig.update_layout(**DARK)
+
+        st.plotly_chart(heat_fig, use_container_width=True)
+        c1, c2, c3 = st.columns(3)
+        with c1: st.plotly_chart(bucket_fig, use_container_width=True)
+        with c2: st.plotly_chart(player_fig, use_container_width=True)
+        with c3: st.plotly_chart(zone_fig, use_container_width=True)
+
+    # ── Shot Map supporting charts ────────────────────────────────────────────
+    def shot_support_charts():
+        shots = df[df['type_name'] == 'Shot'].copy()
+        shots['minute_float'] = shots['minute'] + shots['second'] / 60
+        shots = shots.sort_values('minute_float')
+        shots['xg'] = pd.to_numeric(shots['shot_statsbomb_xg'], errors='coerce').fillna(0)
+
+        # 1. xG race chart
+        t1s = shots[shots['team_name'] == team_1].copy(); t1s['cumxg'] = t1s['xg'].cumsum()
+        t2s = shots[shots['team_name'] == team_2].copy(); t2s['cumxg'] = t2s['xg'].cumsum()
+        race_fig = go.Figure()
+        race_fig.add_trace(go.Scatter(
+            x=[0]+t1s['minute_float'].tolist(), y=[0]+t1s['cumxg'].tolist(),
+            mode='lines+markers', name=team_1, line=dict(color='red', width=3), marker=dict(size=7),
+            hovertemplate="%{x:.0f}' — xG: %{y:.2f}<extra>" + team_1 + "</extra>"))
+        race_fig.add_trace(go.Scatter(
+            x=[0]+t2s['minute_float'].tolist(), y=[0]+t2s['cumxg'].tolist(),
+            mode='lines+markers', name=team_2, line=dict(color='blue', width=3), marker=dict(size=7),
+            hovertemplate="%{x:.0f}' — xG: %{y:.2f}<extra>" + team_2 + "</extra>"))
+        race_fig.update_layout(title='xG Race', xaxis_title='Minute',
+                               yaxis_title='Cumulative xG', **DARK)
+
+        # 2. Shot outcome breakdown (selected players / team)
+        df_shot_sel = df[(df['player_name'].isin(menu_player)) & (df['type_name'] == 'Shot')].copy()
+        df_shot_sel['xg'] = pd.to_numeric(df_shot_sel['shot_statsbomb_xg'], errors='coerce').fillna(0)
+        out_freq = df_shot_sel['shot_outcome_name'].value_counts().reset_index()
+        out_freq.columns = ['outcome','n']
+        out_fig = px.pie(out_freq, names='outcome', values='n',
+                         title='Shot Outcomes', hole=0.35,
+                         color_discrete_map={'Goal':'gold','Saved':'#00bfff',
+                                             'Off T':'#ff5252','Blocked':'#ff9900',
+                                             'Wayward':'#cc44cc','Post':'#aaffaa'})
+        out_fig.update_layout(**DARK)
+
+        # 3. xG vs shot distance scatter
+        def shot_dist(row):
+            l = row['location']
+            gx, gy = 120, 40
+            if isinstance(l,(list,tuple)) and len(l)>=2:
+                return np.sqrt((l[0]-gx)**2+(l[1]-gy)**2)
+            return np.nan
+        df_shot_sel['dist_to_goal'] = df_shot_sel.apply(shot_dist, axis=1)
+        scatter_fig = px.scatter(df_shot_sel.dropna(subset=['dist_to_goal']),
+                                 x='dist_to_goal', y='xg',
+                                 color='shot_outcome_name', size='xg',
+                                 size_max=20, title='xG vs Distance to Goal',
+                                 labels={'dist_to_goal':'Distance (yards)','xg':'xG'},
+                                 color_discrete_map={'Goal':'gold','Saved':'#00bfff',
+                                                     'Off T':'#ff5252','Blocked':'#ff9900'})
+        scatter_fig.update_layout(**DARK)
+
+        # 4. Shot body part bar
+        body_freq = df_shot_sel['shot_body_part_name'].value_counts().reset_index()
+        body_freq.columns = ['part','n']
+        body_fig = px.bar(body_freq, x='part', y='n', title='Shots by Body Part',
+                          color='n', color_continuous_scale='YlOrRd')
+        body_fig.update_layout(**DARK)
+
+        # metrics row
+        goals = len(df_shot_sel[df_shot_sel['shot_outcome_name']=='Goal'])
+        total_xg = df_shot_sel['xg'].sum()
+        c1, c2, c3 = st.columns(3)
+        c1.metric('Shots', len(df_shot_sel))
+        c2.metric('Goals', goals)
+        c3.metric('Total xG', f'{total_xg:.2f}')
+
+        st.plotly_chart(race_fig, use_container_width=True)
+        c1, c2, c3 = st.columns(3)
+        with c1: st.plotly_chart(out_fig, use_container_width=True)
+        with c2: st.plotly_chart(scatter_fig, use_container_width=True)
+        with c3: st.plotly_chart(body_fig, use_container_width=True)
+
+    # ── Dispatch ──────────────────────────────────────────────────────────────
+    typeplot = st.sidebar.selectbox('Select a plot', ['Pass Map','Receipt Map','Pressure Map','Carry Map','Shot Map'])
+
     if typeplot == 'Pass Map':
         pass_map_3d(fig)
-        df_pass = df.loc[(df['player_name'].isin(menu_player)) & (df['type_name'] == 'Pass')]
-
-        frequency = df_pass['pass_recipient_name'].value_counts().reset_index()
-        frequency.columns = ['pass_recipient_name', 'frequency']
-
-        # Step 2: Plot the results using Plotly
-        fig2 = px.pie(frequency, names='pass_recipient_name', values='frequency',
-                title='Distribution of Passes to Each Recipient',
-                labels={'pass_recipient_name': 'Recipient', 'frequency': 'Frequency'},
-                color='frequency',  # Optional: Add color to slices based on frequency
-                    # Optional: Customize color scale
-                )
-    # Step 1: Create bins for 'pass_length'
-        # Define your bin edges and labels
-        bins = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 100]
-        labels = ['0-5', '5-10', '10-15', '15-20', '20-25', '25-30', '30-35', '35-40', '40-45', '45-50', '50-55', '55-60', '60-65', '65-70', '70-75', '75-80', '80-85', '85-90', '90-100']
-
-        # Create bins for 'pass_length'
-        df_pass['pass_length_bin'] = pd.cut(df_pass['pass_length'], bins=bins, labels=labels, right=True)
-
-        # Aggregate the frequency of each bin
-        frequency2 = df_pass['pass_length_bin'].value_counts().reset_index()
-        frequency2.columns = ['pass_length_bin', 'frequency']
-        frequency2 = frequency2.sort_values(by='pass_length_bin')  # Ensure bins are sorted correctly
-
-        # Plot the results using Plotly
-        fig3 = px.bar(frequency2, x='pass_length_bin', y='frequency',
-                    title='Frequency of Pass Lengths',
-                    labels={'pass_length_bin': 'Pass Length (Yards)', 'frequency': 'Frequency'},
-                    color='frequency',  # Optional: Add color to bars based on frequency
-                    color_continuous_scale='Blues'  # Optional: Customize color scale
-                    )
-        
     elif typeplot == 'Receipt Map':
         ball_receipt_map_3d(fig)
     elif typeplot == 'Carry Map':
         carry_map_3d(fig)
-    elif typeplot == 'Pressure Map': 
+    elif typeplot == 'Pressure Map':
         pressure_map_3d(fig)
     else:
-        df_shot = df.loc[(df['player_name'].isin(menu_player)) & (df['type_name'] == 'Shot')]
-
-        frequency = df_shot['shot_outcome_name'].value_counts().reset_index()
-        frequency.columns = ['shot_outcome_name', 'frequency']
-
-        # Step 2: Plot the results using Plotly
-        fig2 = px.pie(frequency, names='shot_outcome_name', values='frequency',
-                title='Shot Outcomes',
-                labels={'shot_outcome_name': 'Shot Outcome', 'frequency': 'Frequency'},
-                color='frequency',  # Optional: Add color to slices based on frequency
-                    # Optional: Customize color scale
-                )
-        frequency2 = df_shot['play_pattern_name'].value_counts().reset_index()
-        frequency2.columns = ['play_pattern_name', 'frequency']
-
-        # Plot the results using Plotly as a bar chart
-        fig3 = px.bar(frequency2, x='play_pattern_name', y='frequency',
-                    title='Frequency of Play Patterns',
-                    labels={'play_pattern_name': 'Play Pattern', 'frequency': 'Frequency'},
-                    color='frequency',  # Optional: Add color to bars based on frequency
-                    color_continuous_scale='Blues'  # Optional: Customize color scale
-                    )
         shot_map_3d(fig)
     # from random import randint
     # # df2 = df[df['type_name'] == 'Pass']
@@ -1553,6 +1860,8 @@ else:
     #         df2 = df[(df['x_start'] == x_val)]
     #         st.write(df2)
     st.subheader(f'{menu_player} {typeplot} - {game2} - {comp} {stage} ')
+    if typeplot == 'xG Race Chart':
+        st.stop()
 # def display_player_image(player_id, width2, caption2):
 #     # Define the list of possible image sizes to try
 #     image_sizes = ['24_120', '23_120', '22_120', '21_120', '20_120','19_120','18_120','17_120','16_120','15_120','14_120']  # Add more sizes if needed
@@ -1628,10 +1937,16 @@ else:
 #     formatted_id = format_id(id)    # Call the function to display the player image
 #     display_player_image(formatted_id, 300, '')
 
-    st.plotly_chart(fig,use_container_width=True)
-    col1,col2 = st.columns(2)
-    if fig2 != None:
-        with col1:
-            st.plotly_chart(fig2)
-        with col2:
-            st.plotly_chart(fig3)
+    st.plotly_chart(fig, use_container_width=True)
+
+    if typeplot == 'Pass Map':
+        df_pass = df.loc[(df['player_name'].isin(menu_player)) & (df['type_name'] == 'Pass')]
+        pass_support_charts(df_pass)
+    elif typeplot == 'Receipt Map':
+        receipt_support_charts()
+    elif typeplot == 'Carry Map':
+        carry_support_charts()
+    elif typeplot == 'Pressure Map':
+        pressure_support_charts()
+    elif typeplot == 'Shot Map':
+        shot_support_charts()
